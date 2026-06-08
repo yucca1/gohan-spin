@@ -39,9 +39,10 @@
 ## 技術スタック
 
 - 開発環境: devcontainer
-- Node.js v24.11.0
-- TypeScript 5.x
+- Node.js v24.16.0
+- TypeScript ~6.0.3
 - パッケージマネージャー: npm
+- 注: バージョンの正は `package.json` と開発環境の実態。詳細は `docs/architecture.md` を参照。
 
 ## スペック駆動開発の基本原則
 

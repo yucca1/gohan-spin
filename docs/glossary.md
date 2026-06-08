@@ -403,11 +403,11 @@ if (name.trim().length === 0) {
 
 **計算式**:
 ```
-pointer = (360 - (angleDeg mod 360) + 360) mod 360
-→ pointer が含まれる区画 [startAngle, endAngle) の店が当選
+pointer = ((360 - (angleDeg mod 360)) mod 360 + 360) mod 360
+→ pointer が含まれる区画 [startAngle, endAngle) の店が当選（末尾区画は end を 360 とみなす）
 ```
 
-**説明**: ホイールがangleDeg回転すると、針はホイール座標系で逆向きに移動したのと等価になるため、360から引いて針の指す角度を求める。
+**説明**: ホイールがangleDeg回転すると、針はホイール座標系で逆向きに移動したのと等価になるため、360から引いて針の指す角度を求める。`angleDeg`が負でも0〜360未満に収まるよう二重にmodを取る。浮動小数点誤差や`pointer=0`で穴が開かないよう、末尾区画は終端を360として扱う（詳細は機能設計書 A-2）。
 
 **実装箇所**: `src/engine/RouletteEngine.ts`
 

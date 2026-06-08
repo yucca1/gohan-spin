@@ -10,11 +10,11 @@
 
 | 技術 | バージョン | 備考 |
 |------|-----------|------|
-| Node.js | v24.16.0 | 開発時のビルド/テスト実行環境（成果物自体はブラウザで動作） |
-| npm | 11.13.0 | パッケージマネージャー |
+| Node.js | v24.16.0 | devcontainerが提供する開発時のビルド/テスト実行環境（成果物自体はブラウザで動作） |
+| npm | 11.13.0 | devcontainer提供。厳密に固定したい場合は`package.json`の`engines`での制約を検討 |
 | TypeScript | ~6.0.3 | `package.json`の実バージョン。strictモードで運用 |
 
-> Node.jsはあくまで**開発・ビルド用**で、本番成果物（HTML/CSS/JS）はブラウザだけで動く。サーバーは存在しない。
+> Node.jsはあくまで**開発・ビルド用**で、本番成果物（HTML/CSS/JS）はブラウザだけで動く。サーバーは存在しない。Node.js/npmのバージョンはdevcontainerの実態に依存するため、`CLAUDE.md`・本書を実態に合わせて同期する（現状は実態と一致）。
 
 ### フレームワーク・ライブラリ
 
@@ -22,9 +22,11 @@
 |------|-----------|------|----------|
 | Vite | ^8.0.16 | ビルド / 開発サーバー | HMRで高速開発。本番は静的アセットを出力しGitHub Pagesにそのまま載る。フレームワーク非依存で素のTS SPAに適する |
 | canvas-confetti | ^1.9.4 | 当選時の紙吹雪演出 | MITライセンス・依存ゼロ・軽量。PRDのライセンス方針と差別化要件（演出）に合致 |
-| ブラウザ標準API (DOM / localStorage / requestAnimationFrame) | - | 描画・永続化・アニメーション | サーバーレス要件のため追加依存なしで完結。UIフレームワークを挟まず軽量・学習向き |
+| ブラウザ標準API (DOM / Canvas / localStorage / requestAnimationFrame) | - | 描画・永続化・アニメーション | サーバーレス要件のため追加依存なしで完結。ホイールは`<canvas>`で扇形を描画、回転はCSS transformで合成 |
 
 > **UIフレームワークを使わない理由**: 規模が小さく（単一画面）、学習目的であるため。React等の抽象を挟むより、素のDOM操作で「何が起きているか」を理解しやすい。状態管理が複雑化したら将来導入を再検討する（拡張余地として記録）。
+
+> ⚠️ **`vite.config.ts`は未作成**。現状はViteのデフォルト設定で動作するが、GitHub Pagesのプロジェクトページ（`https://<user>.github.io/gohan-spin/`）へ配信する場合は`vite.config.ts`を新規作成し`base: '/gohan-spin/'`を設定する必要がある（未設定だとアセットのパスがずれて読み込めない）。実装フェーズの配信準備時に対応する。
 
 ### 開発ツール
 
@@ -34,9 +36,13 @@
 | jsdom | ^29.1.1 | テスト用DOM環境 | ブラウザなしでDOM・localStorageを検証 |
 | @vitest/coverage-v8 | ^4.1.8 | カバレッジ計測 | V8ネイティブで高速 |
 | ESLint | ^10.4.1 | 静的解析 | バグ・アンチパターンの早期検出 |
+| @eslint/js | ^10.0.1 | ESLint推奨ルール | ESLint本体のJSルールセット |
+| eslint-config-prettier | ^10.1.8 | Lint×Prettier競合排除 | PrettierとESLintのスタイル系ルール衝突を防ぐ |
 | Prettier | ^3.8.3 | コードフォーマット | 整形を自動化しスタイル議論を排除 |
 | typescript-eslint | ^8.60.1 | TS用Lintルール | 型情報を使ったLint |
 | husky + lint-staged | ^9.1.7 / ^17.0.7 | コミット前フック | コミット前にlint/formatを自動実行し品質を担保 |
+
+> その他の型定義・補助ツール（`@types/canvas-confetti` / `@types/node` / `@vitest/ui`）は`package.json`を参照。
 
 ## アーキテクチャパターン
 
@@ -117,7 +123,7 @@ interface ShopStoreSchema {
 |------|---------|----------------|
 | 初期表示（FCP） | 1.5秒以内 | デスクトップChrome最新版・GitHub Pages配信。Lighthouse/Performanceで計測 |
 | 一覧再描画 | 数十件で体感遅延なし（目安100ms以内） | `performance.now()`で描画前後差分を計測 |
-| ルーレット回転 | 60fps（1フレーム16.7ms以内）維持 | DevTools Performanceでフレーム落ち確認。iPhone実機でも体感の滑らかさを確認 |
+| ルーレット回転 | 60fps（1フレーム16.7ms以内）を目標 | DevTools Performanceでフレーム落ち確認。iPhone実機でも体感の滑らかさを確認。※ iOSの低電力モード時はブラウザが`requestAnimationFrame`を30fps程度に制限する場合があるが、体感上スムーズなら許容とする |
 
 ### リソース使用量
 
@@ -166,6 +172,8 @@ interface ShopStoreSchema {
 ### 統合テスト
 - **方法**: Vitest + jsdom
 - **対象**: `ShopService`＋`ShopRepository`の永続化ラウンドトリップ（保存→再読込で一致）、破損JSON投入時に例外を投げず空配列で継続すること。
+
+> ⚠️ **テストコードの型チェック**: 現状の`tsconfig.json`は`include`が`src/**/*`のみで`tests/`を含まない。`tsc --noEmit`でテストコードの型エラーが検出されないため、実装フェーズで`include`に`tests/**/*`を追加する（または`tests/tsconfig.json`を用意する）。Vitest自体は`tests/`も実行対象（`vitest.config.ts`）。
 
 ### E2Eテスト
 - **ツール**: MVPは手動（チェックリスト）。将来Playwright導入を検討。
