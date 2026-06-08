@@ -12,6 +12,11 @@
 - 組み込みの `WebSearch` ツールは原則使わない。Tavily が使えない・失敗する・MCPが未設定の場合のフォールバックとしてのみ使う。
 - 特定ページの本文取得は `mcp__tavily__tavily_extract`、サイト構造の探索は `mcp__tavily__tavily_crawl` / `mcp__tavily__tavily_map`、深掘りリサーチは `mcp__tavily__tavily_research` を適宜使い分ける。
 
+## ★ Insight の表形式
+
+- バッククォート罫線（`` ` ─── ` ``）は使わない（VS Code拡張でコードブロック風に崩れるため）
+- 「🌟 **インサイト**」の太字見出し + 箇条書きのみで表示する
+
 # セキュリティ
 
 - `.env`, `credentials` 等の機密ファイルを読み取り、編集、コミットしないこと
