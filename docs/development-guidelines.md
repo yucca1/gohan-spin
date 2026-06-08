@@ -34,8 +34,9 @@ function calc(a: any[]): Shop {}  // any禁止・動詞でない・型が曖昧
 - **インデント / 行幅 / セミコロン等**: Prettierの設定に従う（議論しない）。
 - **静的解析**: ESLint（`eslint.config.js`）。特に以下は**エラー**として強制:
   - `@typescript-eslint/no-explicit-any`: `any`禁止。型が不明なら`unknown`を使い絞り込む。
-  - `@typescript-eslint/no-unused-vars`: 未使用変数禁止（`_`接頭辞で意図的に無視可）。
-- **型チェック**: `tsconfig.json`の`strict`＋`noUnusedLocals`/`noUnusedParameters`/`noFallthroughCasesInSwitch`。`npm run typecheck`で確認。
+  - `@typescript-eslint/no-unused-vars`: 未使用変数禁止。**関数の引数**で意図的に未使用にする場合のみ `_` 接頭辞（`argsIgnorePattern: '^_'`）で抑制可。ローカル変数の未使用抑制には効かない点に注意。
+- **型チェック**: `tsconfig.json`の`strict`＋`noUnusedLocals`/`noUnusedParameters`/`noFallthroughCasesInSwitch`。未使用の**ローカル変数**はこちら（`noUnusedLocals`）で検出される。`npm run typecheck`で確認。
+  - ⚠️ 現状の`tsconfig.json`は`include`が`src/**/*`のみで`tests/`を含まないため、`npm run typecheck`ではテストコードの型エラーが検出されない。実装フェーズで`include`に`tests/**/*`を追加する（`architecture.md`と同期）。
 
 ### 型定義の原則
 
@@ -97,7 +98,7 @@ const pointer = (360 - (angleDeg % 360) + 360) % 360;
 
 ### エラーハンドリング
 
-カスタムエラークラスを`src/types/`または`src/errors.ts`に定義し、種別ごとに扱う。
+カスタムエラークラスは **`src/errors.ts`** に集約し（型定義`types/`とは分離）、種別ごとに扱う。
 
 ```typescript
 class ValidationError extends Error {
@@ -107,8 +108,9 @@ class ValidationError extends Error {
   }
 }
 class StorageError extends Error {
-  constructor(message: string, public cause?: Error) {
-    super(message);
+  // target: ES2022 のため Error の組み込み cause オプションを使う（独自フィールドは持たない）
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message, options);
     this.name = 'StorageError';
   }
 }
@@ -168,7 +170,14 @@ feat(roulette): add spin logic   # prefix・英語はNG
 
 ### コミット前の自動チェック（husky + lint-staged）
 
-`.husky/pre-commit`で`lint-staged`が走り、ステージしたファイルへ自動で`eslint --fix`＋`prettier --write`が適用される（設定は`package.json`）。コミット時点で最低限の品質が担保される。
+`.husky/pre-commit`では以下が順番に実行され、コミット時点で品質が担保される:
+
+1. `npx lint-staged` — ステージしたファイルへ自動整形/修正を適用（設定は`package.json`）:
+   - `*.{ts,tsx}`: `eslint --fix` ＋ `prettier --write`
+   - `*.{json,css,html,md}`: `prettier --write` のみ（ESLintは走らない）
+2. `npm run typecheck`（`tsc --noEmit`）— **型エラーが残っているとコミットが中断される**。
+
+> 💡 コミットが急に失敗したら、まず`npm run typecheck`を手元で実行して型エラーを確認するとよい（pre-commitの2段目で止まっていることが多い）。
 
 ### プルリクエスト（該当する場合）
 
@@ -204,7 +213,7 @@ feat(roulette): add spin logic   # prefix・英語はNG
 /ユニット\   Service / Engine / easing（最多）
 ```
 
-- **カバレッジ目標**: ロジック層で `branches/functions/lines/statements` 各80%以上（`vitest.config.ts`で閾値設定済み・CIで強制）。
+- **カバレッジ目標**: ロジック層で `branches/functions/lines/statements` 各80%以上（`vitest.config.ts`で閾値設定済み・閾値未達でテストが失敗）。`**/types/**` と設定ファイル（`**/*.config.{ts,js}`）は計測対象から除外済み（型定義のみのため）。
 - UI層（views）はロジックが薄いため低めでも許容。Service/Engineを厚くテストする。
 
 ### テストの書き方（Given-When-Then）
@@ -286,14 +295,15 @@ npm run dev
 | コマンド | 内容 |
 |---------|------|
 | `npm run dev` | Vite開発サーバー起動（HMR） |
-| `npm run build` | 型チェック＋本番ビルド（`dist/`出力） |
+| `npm run build` | `tsc --noEmit && vite build`。型チェックが通らないとビルドは中断（`dist/`出力） |
 | `npm run preview` | ビルド成果物のローカル確認 |
 | `npm run lint` | ESLint実行 |
-| `npm run format` | Prettierで整形 |
+| `npm run format` / `format:check` | Prettierで整形 / 整形チェックのみ |
 | `npm run typecheck` | `tsc --noEmit`で型チェック |
 | `npm run test` | Vitestで全テスト実行 |
 | `npm run test:watch` | テストのウォッチ実行 |
 | `npm run test:coverage` | カバレッジ計測 |
+| `npm run test:ui` | VitestのUIモードで実行 |
 
 ## CI/CD（推奨構成 / 未導入なら追加検討）
 

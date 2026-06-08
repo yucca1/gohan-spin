@@ -112,7 +112,7 @@ type IconKey = 'burger' | 'ramen' | 'pizza' | 'sushi' | 'curry' | 'cafe' | 'othe
 
 **定義**: 特定の開発作業における「今回何をするか」を定義する作業単位の一時ドキュメント。
 
-**説明**: `.steering/[YYYYMMDD]-[task-name]/` に `requirements.md` / `design.md` / `tasklist.md` を配置する。永続ドキュメント（`docs/`）とは異なり、作業ごとに新規作成される。gitignore対象。
+**説明**: `.steering/[YYYYMMDD]-[task-name]/` に `requirements.md` / `design.md` / `tasklist.md` を配置する。永続ドキュメント（`docs/`）とは異なり、作業ごとに新規作成される。コミット対象（作業記録・履歴として保持）。
 
 **関連用語**: [永続ドキュメント](#永続ドキュメント-persistent-document)
 

@@ -6,37 +6,42 @@
 
 ## プロジェクト構造
 
+> **注意**: 以下は**目標とするディレクトリ構造**。現時点では実装が始まっておらず、`src/` 配下は `.gitkeep` のみ。サブディレクトリは実装フェーズで順次作成される。コメントに「※未作成」とある項目はまだ存在しない。
+
 ```
 gohan-spin/
-├── index.html              # SPAのエントリHTML（Viteのエントリポイント）
-├── src/                    # ソースコード
+├── index.html              # SPAのエントリHTML（Viteのエントリポイント）※未作成
+├── src/                    # ソースコード（現状 .gitkeep のみ）
 │   ├── main.ts             # アプリ初期化・各レイヤーの組み立て（依存注入）
 │   ├── types/              # 型定義（Shop / IconKey / スキーマ等）
+│   ├── errors.ts           # カスタムエラークラス（ValidationError / StorageError）
 │   ├── icons/              # アイコン定義（IconKey → 絵文字/ラベル/順序の解決マップ）
 │   ├── views/              # UIレイヤー（DOM描画・操作受付・演出）
 │   ├── services/           # サービスレイヤー（お店CRUD・対象管理・バリデーション）
 │   ├── engine/             # ルーレットの計算ロジック（回転・減速・当選判定）
 │   ├── repositories/       # データレイヤー（localStorage I/O）
 │   └── styles/             # CSS（レスポンシブ・レイアウト・演出）
-├── tests/                  # テストコード（src併置と併用可。下記参照）
+├── tests/                  # テストコード（src併置と併用可。下記参照）※現状 空
 │   ├── unit/               # ユニットテスト
 │   └── integration/        # 統合テスト
 ├── docs/                   # プロジェクトドキュメント（6つの永続ドキュメント）
 │   └── ideas/              # 下書き・アイデアメモ
-├── .steering/              # 作業単位のステアリングファイル（gitignore対象）
+├── .steering/              # 作業単位のステアリングファイル（コミット対象。下記参照）
 ├── .claude/                # Claude Code設定（skills/hooks等）
-├── dist/                   # ビルド成果物（gitignore対象。GitHub Pagesへ配信）
-├── index.html
+├── dist/                   # ビルド成果物（gitignore対象。GitHub Pagesへ配信）※ビルド時生成
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts          # （将来追加: GitHub Pages用のbase設定等）
 ├── vitest.config.ts
 ├── eslint.config.js
 ├── .prettierrc / .prettierignore
-└── README.md
+├── .gitignore
+└── README.md               # ※未作成
+# vite.config.ts は未作成（GitHub Pages配信時に新規追加し base: '/gohan-spin/' を設定）
 ```
 
 > **テスト配置の方針**: `vitest.config.ts`の`include`は `src/**/*.{test,spec}.ts` と `tests/**/*.{test,spec}.ts` の両方を対象にしている。本プロジェクトでは原則 **`tests/` に集約**（本番コードとテストを分離しビルドから除外しやすい）。ただし小さなロジックのテストはsrc併置も許容する（設定上は両対応）。チーム内で揺れないよう、迷ったら`tests/`に置く。
+
+> ⚠️ **テストコードの型チェック**: 現状の`tsconfig.json`の`include`は`src/**/*`のみで`tests/`を含まない。`tsc --noEmit`（`npm run typecheck` / `npm run build`の前段）ではテストコードの型エラーが検出されない。実装フェーズで`include`に`tests/**/*`を追加するか、`tests/tsconfig.json`（ルートを`extends`）を用意する（`architecture.md`テスト戦略の注記と同期）。
 
 ## ディレクトリ詳細
 
@@ -56,6 +61,21 @@ gohan-spin/
 **依存関係**:
 - 依存可能: なし（最下層。他に依存しない純粋な型）。
 - 依存禁止: views / services / engine / repositories（型は実装に依存してはならない）。
+
+> ルーレット固有の型（`WheelSegment` / `RouletteState` / `AngleListener`）は、エンジン外から参照されない限り `src/engine/RouletteEngine.ts` 内に定義する。複数レイヤーから参照する必要が出たら `src/types/Roulette.ts` へ切り出す。
+
+#### src/errors.ts
+
+**役割**: アプリ全体で使うカスタムエラークラスを集約。「型定義（受動的なデータ形）」と「`throw`される振る舞いを持つエラークラス」は性質が異なるため、`types/`とは別ファイルにする。
+
+**配置ファイル**:
+- `errors.ts`: `ValidationError`（入力検証エラー）、`StorageError`（localStorage書き込み失敗）。いずれも`Error`を継承。
+
+**命名規則**: ファイルはcamelCase（`errors.ts`）、クラスはPascalCase + `Error`接尾辞。
+
+**依存関係**:
+- 依存可能: なし（最下層。標準`Error`のみ）。
+- 依存禁止: views / services / engine / repositories。
 
 #### src/icons/
 
@@ -259,19 +279,21 @@ repositories (Data)
 ## 特殊ディレクトリ
 
 ### .steering/
-作業単位の計画ファイル。`[YYYYMMDD]-[task-name]/` に `requirements.md` / `design.md` / `tasklist.md` を置く。gitignore対象。
+作業単位の計画ファイル。`[YYYYMMDD]-[task-name]/` に `requirements.md` / `design.md` / `tasklist.md` を置く。**コミット対象**（作業記録・履歴として保持。Prettierの整形対象からは除外）。
 
 ### .claude/
 Claude Code設定（`skills/` 等）。
 
 ## 除外設定
 
-### .gitignore（要点）
-- `node_modules/` / `dist/` / `coverage/`
-- `.env*`（`.env.example`除く）/ `*.pem` / `*.key` 等の機密ファイル
-- `.steering/`（作業用の一時ファイル）
-- `*.log` / `.DS_Store`
+### .gitignore（実態の要点）
+- `node_modules/` / `dist/` / `build/` / `*.tsbuildinfo`
+- `coverage/` / `.nyc_output/`
+- `.env` / `.env.local` / `.env.*.local`（機密。`.env.example`は作る場合のみ別途許可）
+- `*.log` / `logs/` / `.DS_Store` / `.vscode/` / `.idea/`
+- `.claude/settings.local.json`
+- **`.steering/` は gitignore 対象外**（作業記録・履歴としてコミットして残す方針）。
 
-### .prettierignore / eslint ignores
-- `node_modules/` / `dist/` / `coverage/` / `.steering/`
-- eslintは`eslint.config.js`の`ignores`で `node_modules/**` `dist/**` `.steering/**` を除外済み。
+### .prettierignore / eslint ignores（実態）
+- `.prettierignore`: `node_modules/` / `dist/` / `.claude/` / `.steering/` / `docs/` / `CLAUDE.md` / `*log.json` を整形対象外にする（ドキュメントやステアリングは整形しない）。
+- eslint: `eslint.config.js`の`ignores`で `node_modules/**` / `dist/**` / `.steering/**` を除外済み。
