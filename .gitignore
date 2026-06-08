@@ -1,0 +1,44 @@
+# Temporary files
+tmp/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+
+# Steering files: コミット対象（作業記録・履歴として保持する方針）
+
+# Lock files (keep package-lock.json for consistency)
+# yarn.lock
+
+.claude/settings.local.json

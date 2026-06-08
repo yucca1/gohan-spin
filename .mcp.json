@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"],
+      "env": {}
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://context7.liam.sh/mcp"
+    },
+    "todoist": {
+      "type": "http",
+      "url": "https://ai.todoist.net/mcp"
+    },
+    "tavily": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "bws run --project-id 34dee65b-74f1-448a-8352-b45a00c39f9c -- npx -y tavily-mcp@latest"
+      ]
+    }
+  }
+}

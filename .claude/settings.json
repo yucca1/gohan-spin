@@ -1,0 +1,197 @@
+{
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -rf /)",
+      "Bash(sudo *)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(npm install *)",
+      "Bash(pip install *)",
+      "Bash(brew install *)",
+      "Bash(nc *)",
+      "Bash(telnet *)",
+      "Bash(bash -c *)",
+      "Bash(sh -c *)",
+      "Bash(zsh -c *)",
+      "Bash(python -c *)",
+      "Bash(python3 -c *)",
+      "Bash(node -e *)",
+      "Bash(eval *)",
+      "Bash(cat .env*)",
+      "Bash(cat ~/.ssh/*)",
+      "Bash(cat ~/.aws/*)",
+      "Read(//**/.env*)",
+      "Read(//**/credentials*)",
+      "Read(//**/secrets/**)",
+      "Read(//**/*.key)",
+      "Read(//**/*.pem)",
+      "Read(//**/.git-credentials)",
+      "Read(//**/.netrc)",
+      "Read(//**/.npmrc)",
+      "Read(//**/id_rsa*)",
+      "Read(//**/id_ed25519*)",
+      "Read(~/.docker/**)",
+      "Read(~/.zshrc)",
+      "Read(~/.zshenv)",
+      "Read(~/.bashrc)",
+      "Read(~/.bash_profile)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/**)",
+      "Write(//**/.env*)",
+      "Write(//**/credentials*)",
+      "Write(//**/secrets/**)",
+      "Write(//**/*.key)",
+      "Write(//**/*.pem)",
+      "Write(//**/.git-credentials)",
+      "Write(//**/.netrc)",
+      "Write(//**/.npmrc)",
+      "Write(//**/id_rsa*)",
+      "Write(//**/id_ed25519*)",
+      "Write(~/.docker/**)",
+      "Write(~/.zshrc)",
+      "Write(~/.zshenv)",
+      "Write(~/.bashrc)",
+      "Write(~/.bash_profile)",
+      "Write(~/.ssh/**)",
+      "Write(~/.aws/**)",
+      "Write(~/.config/**)",
+      "Edit(//**/.env*)",
+      "Edit(//**/credentials*)",
+      "Edit(//**/secrets/**)",
+      "Edit(//**/*.key)",
+      "Edit(//**/*.pem)",
+      "Edit(//**/.git-credentials)",
+      "Edit(//**/.netrc)",
+      "Edit(//**/.npmrc)",
+      "Edit(//**/id_rsa*)",
+      "Edit(//**/id_ed25519*)",
+      "Edit(~/.docker/**)",
+      "Edit(~/.zshrc)",
+      "Edit(~/.zshenv)",
+      "Edit(~/.bashrc)",
+      "Edit(~/.bash_profile)",
+      "Edit(~/.ssh/**)",
+      "Edit(~/.aws/**)",
+      "Edit(~/.config/**)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(mv *)",
+      "Bash(npm publish *)",
+      "Bash(docker *)"
+    ],
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(ls *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:undraw.co)",
+      "mcp__chrome-devtools__*",
+      "mcp__tavily__*",
+      "mcp__todoist__*",
+      "Skill(prd-writing)",
+      "Skill(functional-design)",
+      "Skill(architecture-design)",
+      "Skill(repository-structure)",
+      "Skill(development-guidelines)",
+      "Skill(glossary-creation)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "failIfUnavailable": true,
+    "filesystem": {
+      "denyRead": [
+        "~/",
+        "//**/.env*",
+        "//**/secrets/**",
+        "//**/credentials*",
+        "//**/*.key",
+        "//**/*.pem",
+        "//**/.git-credentials",
+        "//**/.netrc",
+        "//**/.npmrc",
+        "//**/id_rsa*",
+        "//**/id_ed25519*"
+      ],
+      "allowRead": [".", "~/.gitconfig", "~/.nvm/**", "~/.npm/**"],
+      "allowWrite": ["~/.nvm/**", "~/.npm/**"]
+    },
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "registry.npmjs.org",
+        "pypi.org",
+        "docs.anthropic.com",
+        "code.claude.com"
+      ]
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-command.sh",
+            "timeout": 10,
+            "statusMessage": "コマンドを検証中..."
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/log-config-change.sh",
+            "timeout": 3,
+            "statusMessage": "設定変更をログに記録中..."
+          }
+        ]
+      }
+    ]
+  },
+  "language": "日本語（明るく元気、絵文字あり）",
+  "outputStyle": "Explanatory",
+  "voiceEnabled": false,
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "モゾモゾ",
+      "ざわ…ざわ",
+      "もじもじ",
+      "うねうね",
+      "ピロピロピロ",
+      "うにょにょーん",
+      "ぱやぱや",
+      "はわわわ",
+      "ぴよぴよ"
+    ]
+  },
+  "autoUpdatesChannel": "latest",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "autoMemoryEnabled": false,
+  "effortLevel": "high"
+}
