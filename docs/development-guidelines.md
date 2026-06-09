@@ -218,11 +218,11 @@ feat(roulette): add spin logic   # prefix・英語はNG
  /----\
 / 統合 \    Service+Repositoryの永続化
 /------\
-/ユニット\   Service / Engine / easing（最多）
+/ユニット\   Service / Engine / easing / View の振る舞い（最多）
 ```
 
 - **カバレッジ目標**: ロジック層で `branches/functions/lines/statements` 各80%以上（`vitest.config.ts`で閾値設定済み・閾値未達でテストが失敗）。`**/types/**` と設定ファイル（`**/*.config.{ts,js}`）は計測対象から除外済み（型定義のみのため）。
-- UI層（views）はロジックが薄いため低めでも許容。Service/Engineを厚くテストする。
+- UI層（views）も「振る舞い」は薄くユニットテストする。描画の細部やCSSではなく、操作 → ハンドラ呼び出しの引数・編集モードの状態遷移・確認ダイアログの分岐・入力のフォールバックなど、リグレッションしやすい挙動を jsdom 上で検証する（見た目・レイアウトはテストしない）。view 用には緩めの閾値（各60%）を `vitest.config.ts` の glob 別 `thresholds` で設定しており、view 以外のロジック層は引き続き80%基準で評価される。
 
 ### テストの書き方（Given-When-Then）
 
@@ -257,6 +257,7 @@ describe('ShopService', () => {
 - `easeOutQuint`: `f(0)=0` / `f(1)=1` / 単調増加。
 - `ShopRepository`: 破損JSON投入時に例外を投げず空配列で継続（フォールバック）。
 - `ShopService`＋`ShopRepository`: 保存→再読込でデータ一致（永続化ラウンドトリップ）。
+- `ShopListView`: 操作 → ハンドラ呼び出し（`onCreate`/`onToggle`/`onEdit`/`onDelete`）の引数、編集モードの開始・キャンセルの状態遷移、削除時の `window.confirm` 分岐、不正な `iconKey` の `'other'` フォールバック、店名の `textContent` 反映（XSS無害化）。
 
 ### モックの方針
 
