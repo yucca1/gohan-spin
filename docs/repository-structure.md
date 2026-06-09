@@ -14,7 +14,7 @@ gohan-spin/
 ├── src/                    # ソースコード（現状 .gitkeep のみ）
 │   ├── main.ts             # アプリ初期化・各レイヤーの組み立て（依存注入）
 │   ├── types/              # 型定義（Shop / IconKey / スキーマ等）
-│   ├── errors.ts           # カスタムエラークラス（ValidationError / StorageError）
+│   ├── errors.ts           # カスタムエラークラス（ValidationError / StorageError / NotFoundError）
 │   ├── icons/              # アイコン定義（IconKey → 絵文字/ラベル/順序の解決マップ）
 │   ├── views/              # UIレイヤー（DOM描画・操作受付・演出）
 │   ├── services/           # サービスレイヤー（お店CRUD・対象管理・バリデーション）
@@ -69,7 +69,7 @@ gohan-spin/
 **役割**: アプリ全体で使うカスタムエラークラスを集約。「型定義（受動的なデータ形）」と「`throw`される振る舞いを持つエラークラス」は性質が異なるため、`types/`とは別ファイルにする。
 
 **配置ファイル**:
-- `errors.ts`: `ValidationError`（入力検証エラー）、`StorageError`（localStorage書き込み失敗）。いずれも`Error`を継承。
+- `errors.ts`: `ValidationError`（入力検証エラー）、`StorageError`（localStorage書き込み失敗）、`NotFoundError`（存在しないお店への更新・削除・対象切替）。いずれも`Error`を継承。
 
 **命名規則**: ファイルはcamelCase（`errors.ts`）、クラスはPascalCase + `Error`接尾辞。
 

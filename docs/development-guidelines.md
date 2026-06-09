@@ -114,12 +114,20 @@ class StorageError extends Error {
     this.name = 'StorageError';
   }
 }
+class NotFoundError extends Error {
+  // 存在しない id への更新・削除・対象切替（一覧の競合等）で throw
+  constructor(public id: string, message = 'お店が見つかりません') {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
 ```
 
 **方針**:
 - 予期されるエラー（入力検証）は`ValidationError`をthrowし、Viewが日本語メッセージを表示。
+- 対象のお店が存在しない更新・削除・対象切替は`NotFoundError`をthrowする（入力起因の`ValidationError`とは区別）。
 - localStorage読み込み失敗は**例外を投げず空データで継続**（アプリをクラッシュさせない）。書き込み失敗は`StorageError`で通知。
-- エラーを握り潰さない（`catch`して`null`を返すだけは禁止）。
+- エラーを握り潰さない（`catch`して`null`を返すだけは禁止）。境界（main）で想定内エラー（`ValidationError`/`NotFoundError`/`StorageError`）のみ表示し、想定外は再throwする。
 
 ### セキュリティ（実装時）
 

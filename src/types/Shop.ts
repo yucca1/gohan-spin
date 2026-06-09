@@ -29,8 +29,8 @@ export interface CreateShopInput {
 }
 
 /**
- * お店更新の入力（部分更新）。
- * MVP の登録機能では未使用だが、後続の一覧管理機能で使用する。
+ * お店更新の入力（部分更新）。一覧管理機能（編集・対象切替）で使用する。
+ * 渡されたフィールドのみが ShopService.update で検証・更新される。
  */
 export interface UpdateShopInput {
   name?: string;

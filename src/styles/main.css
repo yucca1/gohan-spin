@@ -119,5 +119,107 @@ body {
 }
 
 .shop-name {
+  flex: 1; /* 余白を吸って広がり、操作ボタンを右端へ押し出す */
   font-size: 1rem;
+  min-width: 0; /* 長い店名でも省略表示できるよう flex の最小幅を解除 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 対象チェックボックス（タップターゲット確保） */
+.toggle-checkbox {
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  min-width: 1.4rem;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* 編集・削除のアイコンボタン（44×44px のヒット領域） */
+.icon-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-target);
+  min-height: var(--tap-target);
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+.delete-btn:hover {
+  border-color: var(--color-error);
+}
+
+/* --- 編集行 --- */
+.shop-row.is-editing {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.edit-name {
+  flex: 1 1 8rem;
+  min-width: 0;
+  min-height: var(--tap-target);
+  padding: 0 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.edit-icon {
+  flex: 0 0 auto;
+  min-height: var(--tap-target);
+  padding: 0 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.shop-row.is-editing button {
+  min-height: var(--tap-target);
+  padding: 0 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-btn {
+  color: #fff;
+  background: var(--color-accent);
+  border: none;
+}
+
+.save-btn:hover {
+  filter: brightness(1.05);
+}
+
+.cancel-btn {
+  color: var(--color-text);
+  background: #fff;
+  border: 1px solid var(--color-border);
+}
+
+.edit-error {
+  flex: 1 0 100%; /* 行内で改行し、入力欄の下に独立表示 */
+  margin: 0;
+  min-height: 1.2em;
+  color: var(--color-error);
+  font-size: 0.85rem;
 }
