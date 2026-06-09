@@ -258,21 +258,24 @@ sequenceDiagram
     participant Storage as localStorage
 
     User->>View: 店名入力・アイコン選択 → [登録]
-    View->>View: 入力バリデーション（name 1〜50文字 / iconKey必須）
+    View->>Service: create({name, iconKey})
+    Service->>Service: 入力バリデーション（name 1〜50文字 / iconKey許可値 / 上限100件）
     alt 入力NG
-        View-->>User: エラーメッセージ表示
+        Service-->>View: ValidationError を throw
+        View-->>User: エラーメッセージ表示（has-error）
     else 入力OK
-        View->>Service: create({name, iconKey})
         Service->>Service: Shop生成（UUID・enabled=true・日時）
         Service->>Repo: saveAll(更新後の全件)
         Repo->>Storage: setItem('gohan-spin:shops', JSON)
         Storage-->>Repo: OK
         Repo-->>Service: 保存完了
         Service-->>View: 作成されたShop
-        View->>View: 一覧を再描画（カテゴリ順）
+        View->>View: 一覧を再描画（カテゴリ順）+ フォームクリア
         View-->>User: 追加されたお店を表示
     end
 ```
+
+> **バリデーションの配置（実装で確定）**: 入力検証は **View ではなく `ShopService.create()` 側に一元化**する。View は入力値をそのまま渡し、`ValidationError` を catch して日本語メッセージを表示する役割に徹する。これにより検証ロジックの重複を避け、UI 以外（テスト等）から `create()` を呼んでも同じ検証が必ず効く（単一責務・防御の単一地点）。
 
 ### UC-2: ルーレットを回して当選を決める
 
@@ -516,7 +519,7 @@ localStorage のキー設計:
   "shops": [
     {
       "id": "7a5c6ff0-5f55-474e-baf7-ea13624d73a4",
-      "name": "バーガーキング 駅前店",
+      "name": "〇〇バーガー 駅前店",
       "iconKey": "burger",
       "enabled": true,
       "createdAt": "2026-06-08T10:00:00.000Z",

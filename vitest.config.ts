@@ -17,6 +17,13 @@ export default defineConfig({
         '.steering/**',
         '**/*.config.{ts,js}',
         '**/types/**',
+        // UI層はロジックが薄く、テストは手動E2Eで担保する方針（development-guidelines.md）
+        '**/views/**',
+        'src/main.ts',
+        // アンビエント型宣言（実行コードなし）
+        '**/*.d.ts',
+        // テストコード自体・補助はカバレッジ計測対象外
+        'tests/**',
       ],
       thresholds: {
         branches: 80,
