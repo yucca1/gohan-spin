@@ -88,7 +88,7 @@ describe('ShopListView', () => {
       // Given
       view.render([makeShop({ id: 's1', enabled: true })]);
       const checkbox = root.querySelector(
-        '.toggle-checkbox',
+        '.toggle-checkbox'
       ) as HTMLInputElement;
       // When（OFF に切り替え）
       checkbox.checked = false;

@@ -39,7 +39,7 @@ describe('ShopService', () => {
 
     it('店名が空文字なら ValidationError を投げる', () => {
       expect(() => service.create({ name: '', iconKey: 'burger' })).toThrow(
-        ValidationError,
+        ValidationError
       );
     });
 
@@ -56,9 +56,9 @@ describe('ShopService', () => {
     });
 
     it('店名が空白のみなら ValidationError を投げる', () => {
-      expect(() =>
-        service.create({ name: '   ', iconKey: 'burger' }),
-      ).toThrow(ValidationError);
+      expect(() => service.create({ name: '   ', iconKey: 'burger' })).toThrow(
+        ValidationError
+      );
     });
 
     it('店名が1文字（境界・下限）なら作成できる', () => {
@@ -75,14 +75,14 @@ describe('ShopService', () => {
     it('店名が51文字（境界・超過）なら ValidationError を投げる', () => {
       const name = 'あ'.repeat(51);
       expect(() => service.create({ name, iconKey: 'burger' })).toThrow(
-        ValidationError,
+        ValidationError
       );
     });
 
     it('iconKey が許可値でないなら ValidationError を投げる', () => {
       expect(() =>
         // @ts-expect-error 不正な iconKey を意図的に渡す
-        service.create({ name: '店', iconKey: 'invalid' }),
+        service.create({ name: '店', iconKey: 'invalid' })
       ).toThrow(ValidationError);
     });
 
@@ -97,7 +97,7 @@ describe('ShopService', () => {
       }));
       repo.saveAll(shops);
       expect(() =>
-        service.create({ name: '101件目', iconKey: 'burger' }),
+        service.create({ name: '101件目', iconKey: 'burger' })
       ).toThrow(ValidationError);
     });
   });
@@ -148,7 +148,7 @@ describe('ShopService', () => {
       // バーガーだけ対象から外す
       service.toggleEnabled(
         service.list().find((s) => s.name === 'バーガー')!.id,
-        false,
+        false
       );
 
       const names = service.listEnabled().map((s) => s.name);
@@ -207,9 +207,7 @@ describe('ShopService', () => {
       expect(updated.createdAt).toBe(created.createdAt);
       // updatedAt は ISO 8601 文字列で、createdAt 以上（同時刻含む）
       expect(new Date(updated.updatedAt).toISOString()).toBe(updated.updatedAt);
-      expect(
-        updated.updatedAt >= created.updatedAt,
-      ).toBe(true);
+      expect(updated.updatedAt >= created.updatedAt).toBe(true);
     });
 
     it('更新内容が永続化される', () => {
@@ -221,7 +219,7 @@ describe('ShopService', () => {
     it('店名が空文字なら ValidationError を投げる', () => {
       const created = service.create({ name: '店', iconKey: 'burger' });
       expect(() => service.update(created.id, { name: '' })).toThrow(
-        ValidationError,
+        ValidationError
       );
     });
 
@@ -229,7 +227,7 @@ describe('ShopService', () => {
       const created = service.create({ name: '店', iconKey: 'burger' });
       const name = 'あ'.repeat(51);
       expect(() => service.update(created.id, { name })).toThrow(
-        ValidationError,
+        ValidationError
       );
     });
 
@@ -243,13 +241,13 @@ describe('ShopService', () => {
       const created = service.create({ name: '店', iconKey: 'burger' });
       expect(() =>
         // @ts-expect-error 不正な iconKey を意図的に渡す
-        service.update(created.id, { iconKey: 'invalid' }),
+        service.update(created.id, { iconKey: 'invalid' })
       ).toThrow(ValidationError);
     });
 
     it('存在しない id なら NotFoundError を投げる', () => {
       expect(() => service.update('missing-id', { name: '名' })).toThrow(
-        NotFoundError,
+        NotFoundError
       );
     });
   });
@@ -283,7 +281,7 @@ describe('ShopService', () => {
 
     it('存在しない id なら NotFoundError を投げる', () => {
       expect(() => service.toggleEnabled('missing-id', false)).toThrow(
-        NotFoundError,
+        NotFoundError
       );
     });
   });

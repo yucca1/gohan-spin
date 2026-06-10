@@ -17,7 +17,9 @@ export const ICON_DEFS: readonly IconDef[] = [
 ];
 
 /** 'other'（フォールバック先）の定義。ICON_DEFS と整合させる。 */
-const FALLBACK_ICON_DEF: IconDef = ICON_DEFS.find((def) => def.key === 'other')!;
+const FALLBACK_ICON_DEF: IconDef = ICON_DEFS.find(
+  (def) => def.key === 'other'
+)!;
 
 /**
  * IconKey から IconDef を解決する。

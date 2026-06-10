@@ -58,7 +58,7 @@ export class ShopRepository {
     } catch (cause) {
       throw new StorageError(
         '保存に失敗しました。不要なお店を削除してください',
-        { cause },
+        { cause }
       );
     }
   }

@@ -52,7 +52,7 @@ describe('ShopRepository', () => {
     it('スキーマの形が不正（shops が配列でない）なら空配列を返す', () => {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ version: 1, shops: 'not-array' }),
+        JSON.stringify({ version: 1, shops: 'not-array' })
       );
       expect(repo.loadAll()).toEqual([]);
     });
