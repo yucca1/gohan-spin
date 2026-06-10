@@ -234,9 +234,12 @@ class ShopListView {
 }
 
 class RouletteView {
+  bindEvents(handlers: RouletteHandlers): void;  // onStart/onStop/onReset（mainがEngineを仲介）
   renderWheel(segments: WheelSegment[]): void;
   setAngle(angleDeg: number): void;              // ホイール回転をCSSへ反映
+  setPhase(state: RouletteState): void;          // 状態に応じたStart/Stopボタン活性制御
   playWinnerEffect(winner: Shop): void;          // 点滅+ズーム+店名表示+confetti
+  hideWinner(): void;                            // 「もう一度」で当選オーバーレイを閉じる
   setControlsEnabled(canStart: boolean): void;   // 対象0件時はStart不可
 }
 ```

@@ -36,7 +36,7 @@ function calc(a: any[]): Shop {}  // any禁止・動詞でない・型が曖昧
   - `@typescript-eslint/no-explicit-any`: `any`禁止。型が不明なら`unknown`を使い絞り込む。
   - `@typescript-eslint/no-unused-vars`: 未使用変数禁止。**関数の引数**で意図的に未使用にする場合のみ `_` 接頭辞（`argsIgnorePattern: '^_'`）で抑制可。ローカル変数の未使用抑制には効かない点に注意。
 - **型チェック**: `tsconfig.json`の`strict`＋`noUnusedLocals`/`noUnusedParameters`/`noFallthroughCasesInSwitch`。未使用の**ローカル変数**はこちら（`noUnusedLocals`）で検出される。`npm run typecheck`で確認。
-  - ⚠️ 現状の`tsconfig.json`は`include`が`src/**/*`のみで`tests/`を含まないため、`npm run typecheck`ではテストコードの型エラーが検出されない。実装フェーズで`include`に`tests/**/*`を追加する（`architecture.md`と同期）。
+  - ✅ `tsconfig.json`の`include`は`src/**/*`と`tests/**/*`の両方を含み、`npm run typecheck`でテストコードの型エラーも検出される（対応済み・`architecture.md`と同期）。
 
 ### 型定義の原則
 
