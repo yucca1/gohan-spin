@@ -336,6 +336,7 @@ body {
   align-items: center;
   justify-content: center;
   background: rgb(0 0 0 / 0.45);
+  cursor: pointer; /* 背景クリックで閉じられることを示す */
 }
 
 .winner-overlay.is-hidden {
@@ -343,6 +344,7 @@ body {
 }
 
 .winner-card {
+  cursor: default; /* カード内は背景クリックで閉じる操作の対象外 */
   display: grid;
   justify-items: center;
   gap: 0.5rem;

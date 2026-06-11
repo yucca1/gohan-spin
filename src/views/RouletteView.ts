@@ -138,6 +138,11 @@ export class RouletteView {
     this.startBtn.addEventListener('click', () => handlers.onStart());
     this.stopBtn.addEventListener('click', () => handlers.onStop());
     this.resetBtn.addEventListener('click', () => handlers.onReset());
+    // 背景（カードの外側）クリックでも「もう一度」と同じリセット操作にする。
+    // カード内のクリックは target が子要素になるため発火しない
+    this.overlayEl.addEventListener('click', (event) => {
+      if (event.target === this.overlayEl) handlers.onReset();
+    });
   }
 
   /**
@@ -174,11 +179,11 @@ export class RouletteView {
       this.drawLabel(ctx, segment, center);
     }
 
-    // 外周の縁取りで「運命の輪」らしさを出す
+    // 外周の縁取りで「運命の輪」らしさを出す（主張しすぎないグレーの細いライン）
     ctx.beginPath();
     ctx.arc(center, center, WHEEL_RADIUS, 0, Math.PI * 2);
-    ctx.strokeStyle = '#5d4037';
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#9e9e9e';
+    ctx.lineWidth = 2;
     ctx.stroke();
   }
 

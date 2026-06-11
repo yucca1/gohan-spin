@@ -126,6 +126,34 @@ describe('RouletteEngine', () => {
       }
     });
 
+    it('build を繰り返しても各お店の色は変わらない（「もう一度」で色が変わらない）', () => {
+      const engine = new RouletteEngine();
+      const shops = makeShops(5);
+
+      const first = engine.build(shops);
+      const colorById = new Map(first.map((s) => [s.shop.id, s.color]));
+      const second = engine.build(shops);
+
+      for (const seg of second) {
+        expect(seg.color).toBe(colorById.get(seg.shop.id));
+      }
+    });
+
+    it('お店を追加して build し直しても、既存のお店の色は変わらない', () => {
+      const engine = new RouletteEngine();
+      const shops = makeShops(4);
+
+      const first = engine.build(shops);
+      const colorById = new Map(first.map((s) => [s.shop.id, s.color]));
+      const second = engine.build([...shops, makeShop('新しいお店')]);
+
+      for (const seg of second) {
+        if (colorById.has(seg.shop.id)) {
+          expect(seg.color).toBe(colorById.get(seg.shop.id));
+        }
+      }
+    });
+
     it('ランダム順に配置される（シャッフルが乱数に依存する）', () => {
       // Given: 乱数を固定すると並びが決定論的になる
       vi.spyOn(Math, 'random').mockReturnValue(RANDOM_IDENTITY);
@@ -218,10 +246,30 @@ describe('RouletteEngine', () => {
       clock.step(16);
 
       expect(angles).toHaveLength(3);
-      // 等速 0.36 deg/ms × 16ms = 5.76度ずつ進む
-      expect(angles[0]).toBeCloseTo(5.76);
+      // 等速 1.0 deg/ms × 16ms = 16度ずつ進む
+      expect(angles[0]).toBeCloseTo(16);
       expect(angles[1]).toBeGreaterThan(angles[0]);
       expect(angles[2]).toBeGreaterThan(angles[1]);
+    });
+
+    it('Stop直後の減速速度は等速回転と連続している（加速して見えない）', () => {
+      // Given: 等速回転中（1フレーム=16msで16度進む）
+      let lastSpinAngle = 0;
+      engine.start((angle) => {
+        lastSpinAngle = angle;
+      });
+      clock.step(16);
+
+      // When: Stop直後の最初の減速フレーム
+      const decelAngles: number[] = [];
+      engine.stop((angle) => decelAngles.push(angle), vi.fn());
+      clock.step(16);
+
+      // Then: 最初のフレームの進みが等速時（16度）を超えない＝加速しない。
+      // かつ大きく落ち込まず滑らかにつながる（初速一致のため16度に近い値）
+      const firstDecelDelta = decelAngles[0] - lastSpinAngle;
+      expect(firstDecelDelta).toBeLessThanOrEqual(16);
+      expect(firstDecelDelta).toBeGreaterThan(15);
     });
 
     it('spinning 中の再 start は無視される（多重ループ防止）', () => {
@@ -240,8 +288,8 @@ describe('RouletteEngine', () => {
       engine.stop(() => {}, onFinish);
       expect(engine.state).toBe('decelerating');
 
-      // 減速時間は最大6000ms。十分な回数フレームを進めて着地させる
-      for (let i = 0; i < 100; i++) clock.step(100);
+      // 減速時間は最大約10.8秒。十分な回数（15秒分）フレームを進めて着地させる
+      for (let i = 0; i < 150; i++) clock.step(100);
 
       expect(engine.state).toBe('finished');
       expect(onFinish).toHaveBeenCalledTimes(1);
@@ -256,7 +304,7 @@ describe('RouletteEngine', () => {
       engine.start(() => {});
       clock.step(16);
       engine.stop(() => {}, onFinish);
-      for (let i = 0; i < 100; i++) clock.step(100);
+      for (let i = 0; i < 150; i++) clock.step(100);
 
       const winner = onFinish.mock.calls[0][0] as Shop;
       expect(shops.some((s) => s.id === winner.id)).toBe(true);
@@ -267,7 +315,7 @@ describe('RouletteEngine', () => {
       engine.start(() => {});
       clock.step(16);
       engine.stop((angle) => angles.push(angle), vi.fn());
-      for (let i = 0; i < 100; i++) clock.step(100);
+      for (let i = 0; i < 150; i++) clock.step(100);
 
       for (let i = 1; i < angles.length; i++) {
         expect(angles[i]).toBeGreaterThanOrEqual(angles[i - 1]);
@@ -302,7 +350,7 @@ describe('RouletteEngine', () => {
 
       engine.reset();
       expect(engine.state).toBe('idle');
-      for (let i = 0; i < 100; i++) clock.step(100);
+      for (let i = 0; i < 150; i++) clock.step(100);
       expect(onFinish).not.toHaveBeenCalled();
     });
 
@@ -310,7 +358,7 @@ describe('RouletteEngine', () => {
       engine.start(() => {});
       clock.step(16);
       engine.stop(() => {}, vi.fn());
-      for (let i = 0; i < 100; i++) clock.step(100);
+      for (let i = 0; i < 150; i++) clock.step(100);
       expect(engine.state).toBe('finished');
 
       engine.reset();

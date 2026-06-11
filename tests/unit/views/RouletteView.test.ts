@@ -127,6 +127,18 @@ describe('RouletteView', () => {
       expect(handlers.onReset).toHaveBeenCalledTimes(1);
     });
 
+    it('オーバーレイの背景（カードの外側）クリックでも onReset が呼ばれる', () => {
+      view.playWinnerEffect(makeShop('ラーメンA'));
+      overlay().click(); // target がオーバーレイ自身＝カード外側のクリック
+      expect(handlers.onReset).toHaveBeenCalledTimes(1);
+    });
+
+    it('当選カード内のクリックでは onReset は呼ばれない', () => {
+      view.playWinnerEffect(makeShop('ラーメンA'));
+      (root.querySelector('.winner-name') as HTMLElement).click();
+      expect(handlers.onReset).not.toHaveBeenCalled();
+    });
+
     it('disabled の Start をクリックしても onStart は呼ばれない', () => {
       view.setControlsEnabled(false);
       startBtn().click();
