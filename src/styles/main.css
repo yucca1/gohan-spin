@@ -318,6 +318,16 @@ body {
   background: #0ea5e9;
 }
 
+/* 効果音トグル（「効果音 ON/OFF」）。OFF=グレー / ON=グリーンで状態を色でも示す */
+.sound-btn {
+  font-size: 0.95rem;
+  background: #9ca3af;
+}
+
+.sound-btn.is-on {
+  background: #16a34a;
+}
+
 .roulette-controls button:hover:not(:disabled) {
   filter: brightness(1.05);
 }

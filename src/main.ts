@@ -4,6 +4,7 @@ import { ShopService } from './services/ShopService';
 import { ShopListView } from './views/ShopListView';
 import { RouletteView } from './views/RouletteView';
 import { RouletteEngine } from './engine/RouletteEngine';
+import { SoundDirector } from './audio/SoundDirector';
 import { ValidationError, NotFoundError, StorageError } from './errors';
 
 /**
@@ -57,7 +58,7 @@ function bootstrap(): void {
   const service = new ShopService(new ShopRepository());
   const view = new ShopListView(shopsRoot);
   const engine = new RouletteEngine();
-  const rouletteView = new RouletteView(rouletteRoot);
+  const rouletteView = new RouletteView(rouletteRoot, new SoundDirector());
 
   /**
    * アイドル中のみホイールを最新の対象店で再構築し、Start 可否を更新する。

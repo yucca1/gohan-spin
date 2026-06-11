@@ -3,7 +3,11 @@ import confetti from 'canvas-confetti';
 import { RouletteView } from '../../../src/views/RouletteView';
 import type { RouletteHandlers } from '../../../src/views/RouletteView';
 import type { Shop } from '../../../src/types/Shop';
-import type { WheelSegment } from '../../../src/types/Roulette';
+import type {
+  WheelSegment,
+  RouletteSounds,
+  RouletteState,
+} from '../../../src/types/Roulette';
 
 // jsdom には canvas 実装がないため、confetti はスタブして呼び出しのみ検証する
 vi.mock('canvas-confetti', () => ({ default: vi.fn() }));
@@ -204,6 +208,86 @@ describe('RouletteView', () => {
       view.setAngle(123.45);
       const canvas = root.querySelector('.wheel-canvas') as HTMLCanvasElement;
       expect(canvas.style.transform).toBe('rotate(123.45deg)');
+    });
+  });
+
+  describe('効果音（RouletteSounds との連携）', () => {
+    /** 呼び出しを記録するだけの fake 効果音実装。 */
+    class FakeSounds implements RouletteSounds {
+      enabled = false;
+      toggleCalls = 0;
+      segmentCounts: number[] = [];
+      angles: number[] = [];
+      phases: RouletteState[] = [];
+
+      toggle(): boolean {
+        this.toggleCalls++;
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+      setSegmentCount(count: number): void {
+        this.segmentCounts.push(count);
+      }
+      handleAngle(angleDeg: number): void {
+        this.angles.push(angleDeg);
+      }
+      handlePhase(state: RouletteState): void {
+        this.phases.push(state);
+      }
+    }
+
+    let sounds: FakeSounds;
+    let soundView: RouletteView;
+
+    beforeEach(() => {
+      sounds = new FakeSounds();
+      soundView = new RouletteView(root, sounds);
+    });
+
+    const soundBtn = () => root.querySelector('.sound-btn') as HTMLButtonElement;
+
+    it('sounds 未注入ではトグルボタンを描画しない（既存動作の不変）', () => {
+      new RouletteView(root); // sounds なしで再構築
+      expect(root.querySelector('.sound-btn')).toBeNull();
+    });
+
+    it('sounds 注入時はトグルボタンが描画され、初期表示は「効果音 OFF」', () => {
+      expect(soundBtn()).not.toBeNull();
+      expect(soundBtn().textContent).toBe('効果音 OFF');
+      expect(soundBtn().classList.contains('is-on')).toBe(false);
+      expect(soundBtn().getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('トグル押下で toggle() が呼ばれ、表示が「効果音 ON」に切り替わる', () => {
+      soundBtn().click();
+      expect(sounds.toggleCalls).toBe(1);
+      expect(soundBtn().textContent).toBe('効果音 ON');
+      expect(soundBtn().classList.contains('is-on')).toBe(true);
+      expect(soundBtn().getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('もう一度押すと「効果音 OFF」へ戻る', () => {
+      soundBtn().click();
+      soundBtn().click();
+      expect(soundBtn().textContent).toBe('効果音 OFF');
+      expect(soundBtn().classList.contains('is-on')).toBe(false);
+      expect(soundBtn().getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('setPhase が handlePhase へ転送される', () => {
+      soundView.setPhase('spinning');
+      soundView.setPhase('decelerating');
+      expect(sounds.phases).toEqual(['spinning', 'decelerating']);
+    });
+
+    it('setAngle が handleAngle へ転送される', () => {
+      soundView.setAngle(123.45);
+      expect(sounds.angles).toEqual([123.45]);
+    });
+
+    it('renderWheel が区画数を setSegmentCount へ転送する（jsdom の描画スキップ環境でも）', () => {
+      soundView.renderWheel(makeSegments([makeShop('A'), makeShop('B')]));
+      expect(sounds.segmentCounts).toEqual([2]);
     });
   });
 });
