@@ -173,7 +173,7 @@ interface ShopStoreSchema {
 - **方法**: Vitest + jsdom
 - **対象**: `ShopService`＋`ShopRepository`の永続化ラウンドトリップ（保存→再読込で一致）、破損JSON投入時に例外を投げず空配列で継続すること。
 
-> ⚠️ **テストコードの型チェック**: 現状の`tsconfig.json`は`include`が`src/**/*`のみで`tests/`を含まない。`tsc --noEmit`でテストコードの型エラーが検出されないため、実装フェーズで`include`に`tests/**/*`を追加する（または`tests/tsconfig.json`を用意する）。Vitest自体は`tests/`も実行対象（`vitest.config.ts`）。
+> ✅ **テストコードの型チェック**: `tsconfig.json`の`include`は`src/**/*`と`tests/**/*`の両方を含み、`tsc --noEmit`でテストコードの型エラーも検出される（対応済み）。Vitest自体も`tests/`を実行対象とする（`vitest.config.ts`）。
 
 ### E2Eテスト
 - **ツール**: MVPは手動（チェックリスト）。将来Playwright導入を検討。

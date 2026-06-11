@@ -234,9 +234,12 @@ class ShopListView {
 }
 
 class RouletteView {
+  bindEvents(handlers: RouletteHandlers): void;  // onStart/onStop/onReset（mainがEngineを仲介）
   renderWheel(segments: WheelSegment[]): void;
   setAngle(angleDeg: number): void;              // ホイール回転をCSSへ反映
+  setPhase(state: RouletteState): void;          // 状態に応じたStart/Stopボタン活性制御
   playWinnerEffect(winner: Shop): void;          // 点滅+ズーム+店名表示+confetti
+  hideWinner(): void;                            // 「もう一度」で当選オーバーレイを閉じる
   setControlsEnabled(canStart: boolean): void;   // 対象0件時はStart不可
 }
 ```
@@ -331,7 +334,7 @@ stateDiagram-v2
 1. 対象店配列を**Fisher-Yatesシャッフル**でランダム並び替え（一覧のカテゴリ順とは独立させ、公平感・意外性を出す）。
 2. 1店あたりの角度 = `360 / N`（N=対象店数）。
 3. i番目の店の区画 = `startAngle = i * (360/N)`、`endAngle = (i+1) * (360/N)`。ただし**最後の区画の`endAngle`は厳密に`360`に固定**する（浮動小数点誤差で360未満になり、当選判定で隙間が生じるのを防ぐ）。
-4. 隣接区画で色が連続しないようパレットを循環割当。**ホイールは円環なので先頭(index 0)と末尾(index N-1)も隣接する**点に注意。Nが奇数のときに2色パレットを循環させると先頭・末尾が同色になりうるため、**パレットは最低3色以上（推奨4色以上）**を用意し、`palette[i % palette.length]`で割り当てたうえで、末尾が先頭と同色になる場合は次の色へずらす。
+4. 色は**お店に対して安定的に割り当てる**（初登場時にパレット10色を循環割当し、Engine内の`Map<shopId, color>`で記憶）。位置基準の割当だとbuildのたびに色が変わり、「もう一度」でリセットした際に同じお店の色が変わって不自然になるため。隣接同色の回避（**ホイールは円環なので先頭と末尾も隣接する**点に注意）は、色を変えるのではなく**並びの再シャッフル（上限20回の試行）**で行う。パレット一周後（11店目以降）に同色のお店が生じても、再シャッフルでほぼ確実に隣接を回避できる（上限到達時のみ同色隣接を許容）。
 
 ```typescript
 function shuffle<T>(arr: T[]): T[] {
@@ -378,12 +381,12 @@ function getWinner(angleDeg: number, segments: WheelSegment[]): Shop {
 **目的**: Startから（Stopが押されるまで）一定速度でホイールを回し続ける。
 
 **設計**:
-1. `state`を`spinning`にし、回転速度 `SPIN_SPEED_DEG_PER_MS`（例: `0.36`＝360deg/s）を定数で持つ。
+1. `state`を`spinning`にし、回転速度 `SPIN_SPEED_DEG_PER_MS`（`1.0`＝1000deg/s。実機の動作確認を経て360deg/sから段階的に引き上げ）を定数で持つ。
 2. `requestAnimationFrame`で毎フレーム、前フレームからの経過時間ぶんだけ`currentAngle`を加算し`onUpdate`で通知。
 3. `rafId`を保持し、`stop()`／`reset()`で停止できるようにする。
 
 ```typescript
-const SPIN_SPEED_DEG_PER_MS = 0.36; // 360deg/s（実機で微調整）
+const SPIN_SPEED_DEG_PER_MS = 1.0; // 1000deg/s（実機の動作確認を経て調整済み）
 
 start(onUpdate: AngleListener): void {
   this.state = 'spinning';
@@ -406,8 +409,8 @@ start(onUpdate: AngleListener): void {
 
 **設計**:
 1. `state`を`decelerating`にし、Stop時点の現在角度 `from`（=`currentAngle`）を取得。
-2. 最終停止角度 `to` を決定: `to = from + 余分回転(数周分) + ランダムオフセット`。数周回してから止めることで自然な減速に見せる。
-3. 総減速時間 `durationMs` は **4000〜6000ms** の範囲でランダムに決める（PRDの体感設計と整合。毎回同じ尺だと単調になるのを防ぐ）。
+2. 着地点 `landing` を乱数で決め、最終停止角度 `to = from + 最低5周 + landingまでのオフセット` とする（総距離 `distance` は1800〜2160度）。
+3. 総減速時間 `durationMs` は固定レンジの乱数ではなく、**`durationMs = 5 × distance ÷ SPIN_SPEED_DEG_PER_MS`** で総距離から逆算する。`easeOutQuint` の初速は `5 × distance ÷ durationMs` のため、これで**減速の初速＝等速回転の速度**となり、Stop直後に一瞬加速して見える違和感がなくなる（速度の連続性）。距離が1800〜2160度のため所要時間は約9〜10.8秒（≒10秒）となり、ドキドキする時間を確保しつつ尺のばらつきも自然に生まれる。
 4. イージングは**強めのease-out**を用い、終盤を長く伸ばす。`easeOutQuint = 1 - (1-t)^5`（cubicより終盤が粘る＝リーチ感）。
 5. `requestAnimationFrame`で毎フレーム角度を補間し`onUpdate`。`t>=1`で`state='finished'`にし`onFinish(getWinner(to))`を一度だけ呼ぶ。
 
@@ -420,10 +423,12 @@ function easeOutQuint(t: number): number {
 stop(onUpdate: AngleListener, onFinish: (winner: Shop) => void): void {
   this.state = 'decelerating';
   const from = this.currentAngle;
-  const extraTurns = 4 + Math.floor(Math.random() * 3);     // 4〜6周
   const landing = Math.random() * 360;                       // 着地点（完全ランダム）
-  const to = from + extraTurns * 360 + landing;
-  const durationMs = 4000 + Math.random() * 2000;            // 4000〜6000ms
+  const offsetToLanding = (((landing - from) % 360) + 360) % 360;
+  const distance = 5 * 360 + offsetToLanding;                // 最低5周＋着地点まで
+  const to = from + distance;
+  // easeOutQuint の初速(5×distance÷duration)が等速回転速度と一致するよう逆算
+  const durationMs = (5 * distance) / SPIN_SPEED_DEG_PER_MS; // 約9000〜10800ms
   const startTime = performance.now();
 
   const tick = (now: number) => {
@@ -504,6 +509,7 @@ stop(onUpdate: AngleListener, onFinish: (winner: Shop) => void): void {
 1. 店名を入力しアイコンを選んで[登録] → 一覧へ追加（カテゴリ順）。
 2. 一覧のチェックで対象ON/OFF、[✎]で編集、[🗑]で削除。
 3. [Start]で回転開始 → [Stop]で減速・リーチ → 当選演出。
+4. 当選演出後は「もう一度」ボタン、または当選オーバーレイの背景（カード外側）クリックでリセットし、再度回せる。
 
 ## ファイル構造（localStorageスキーマ）
 

@@ -6,7 +6,7 @@
 
 ## プロジェクト構造
 
-> **注意**: 以下は**目標とするディレクトリ構造**。現時点では実装が始まっておらず、`src/` 配下は `.gitkeep` のみ。サブディレクトリは実装フェーズで順次作成される。コメントに「※未作成」とある項目はまだ存在しない。
+> **注意**: 以下は**目標とするディレクトリ構造**。お店の登録・一覧管理・ルーレット機能の実装に伴い、`src/` 配下の主要サブディレクトリ（types / icons / views / services / engine / repositories / styles）と `tests/` は作成済み。コメントに「※未作成」とある項目はまだ存在しない。
 
 ```
 gohan-spin/
@@ -41,7 +41,7 @@ gohan-spin/
 
 > **テスト配置の方針**: `vitest.config.ts`の`include`は `src/**/*.{test,spec}.ts` と `tests/**/*.{test,spec}.ts` の両方を対象にしている。本プロジェクトでは原則 **`tests/` に集約**（本番コードとテストを分離しビルドから除外しやすい）。ただし小さなロジックのテストはsrc併置も許容する（設定上は両対応）。チーム内で揺れないよう、迷ったら`tests/`に置く。
 
-> ⚠️ **テストコードの型チェック**: 現状の`tsconfig.json`の`include`は`src/**/*`のみで`tests/`を含まない。`tsc --noEmit`（`npm run typecheck` / `npm run build`の前段）ではテストコードの型エラーが検出されない。実装フェーズで`include`に`tests/**/*`を追加するか、`tests/tsconfig.json`（ルートを`extends`）を用意する（`architecture.md`テスト戦略の注記と同期）。
+> ✅ **テストコードの型チェック**: `tsconfig.json`の`include`は`src/**/*`と`tests/**/*`の両方を含み、`tsc --noEmit`（`npm run typecheck` / `npm run build`の前段）でテストコードの型エラーも検出される（対応済み・`architecture.md`テスト戦略の注記と同期）。
 
 ## ディレクトリ詳細
 
@@ -55,6 +55,7 @@ gohan-spin/
 - `Shop.ts`: `Shop`インターフェース、`CreateShopInput` / `UpdateShopInput`。
 - `IconKey.ts`: `IconKey`型、`IconDef`インターフェース。
 - `ShopStoreSchema.ts`: localStorage保存スキーマ（`{version, shops}`）。
+- `Roulette.ts`: `WheelSegment` / `RouletteState` / `AngleListener`（engine と views の両方から参照）。
 
 **命名規則**: PascalCase（型名と一致）。
 
@@ -62,7 +63,7 @@ gohan-spin/
 - 依存可能: なし（最下層。他に依存しない純粋な型）。
 - 依存禁止: views / services / engine / repositories（型は実装に依存してはならない）。
 
-> ルーレット固有の型（`WheelSegment` / `RouletteState` / `AngleListener`）は、エンジン外から参照されない限り `src/engine/RouletteEngine.ts` 内に定義する。複数レイヤーから参照する必要が出たら `src/types/Roulette.ts` へ切り出す。
+> ルーレット固有の型（`WheelSegment` / `RouletteState` / `AngleListener`）は、当初「エンジン外から参照されない限り `RouletteEngine.ts` 内に定義する」方針だったが、`WheelSegment` を `RouletteView.renderWheel()` が、`RouletteState` を `RouletteView.setPhase()` が参照するため、方針どおり `src/types/Roulette.ts` へ切り出して実装した。
 
 #### src/errors.ts
 

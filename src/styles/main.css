@@ -223,3 +223,200 @@ body {
   color: var(--color-error);
   font-size: 0.85rem;
 }
+
+/* --- 全体レイアウト（モバイル: 縦積み・ルーレット主役 / デスクトップ: 2カラム） --- */
+.app-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+/* DOM順はルーレットが先（モバイルで主役として最上部に来る） */
+@media (min-width: 880px) {
+  .app-layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  /* デスクトップではお店管理を左、ルーレットを右に並べる */
+  .layout-shops {
+    order: -1;
+  }
+}
+
+/* 2カラム時に shop-manager 側の中央寄せ余白を解除してカラム幅に馴染ませる */
+.app-layout .shop-manager {
+  max-width: none;
+  padding: 0;
+}
+
+/* --- ルーレット --- */
+.roulette {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+}
+
+.wheel-area {
+  position: relative;
+  /* ホイールが画面（幅・高さ）に収まるサイズ。針のぶん上に余白を取る */
+  width: min(100%, 70vmin, 420px);
+  padding-top: 1.5rem;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  font-size: 1.6rem;
+  color: var(--color-error);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+.wheel-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* 回転は transform のみ（GPU合成）。will-change でレイヤー化を促す */
+  will-change: transform;
+}
+
+.roulette-message {
+  margin: 0;
+  min-height: 1.2em;
+  color: var(--color-error);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.roulette-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.roulette-controls button {
+  min-width: 7rem;
+  min-height: var(--tap-target);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.start-btn {
+  background: var(--color-accent);
+}
+
+.stop-btn {
+  background: #0ea5e9;
+}
+
+.roulette-controls button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.roulette-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- 当選オーバーレイ --- */
+.winner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.45);
+  cursor: pointer; /* 背景クリックで閉じられることを示す */
+}
+
+.winner-overlay.is-hidden {
+  display: none;
+}
+
+.winner-card {
+  cursor: default; /* カード内は背景クリックで閉じる操作の対象外 */
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  max-width: min(90vw, 26rem);
+  padding: 2rem 2.5rem;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.3);
+  text-align: center;
+}
+
+.winner-heading {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.winner-icon {
+  font-size: 3.5rem;
+  line-height: 1.2;
+}
+
+.winner-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  overflow-wrap: anywhere; /* 長い店名でもカード内に収める */
+}
+
+.reset-btn {
+  min-width: 9rem;
+  min-height: var(--tap-target);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  filter: brightness(1.05);
+}
+
+/* 当選演出: ズーム（出現時に1回）＋点滅（店名を強調） */
+.winner-card.is-zoomed {
+  animation: winner-zoom 0.5s ease-out;
+}
+
+.winner-card.is-blinking .winner-name,
+.winner-card.is-blinking .winner-icon {
+  animation: winner-blink 0.8s ease-in-out 3;
+}
+
+@keyframes winner-zoom {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes winner-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}

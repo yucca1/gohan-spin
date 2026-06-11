@@ -36,7 +36,7 @@ export class ShopService {
       throw new ValidationError(
         `お店は最大${MAX_SHOPS}件まで登録できます`,
         'shops',
-        shops.length,
+        shops.length
       );
     }
 
@@ -151,7 +151,7 @@ export class ShopService {
       throw new ValidationError(
         `店名は1〜${MAX_NAME_LENGTH}文字で入力してください`,
         'name',
-        name,
+        name
       );
     }
   }
@@ -164,7 +164,7 @@ export class ShopService {
       throw new ValidationError(
         'アイコンを選択してください',
         'iconKey',
-        iconKey,
+        iconKey
       );
     }
   }

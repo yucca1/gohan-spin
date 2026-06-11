@@ -45,10 +45,10 @@ export class ShopListView {
     this.form = this.buildForm();
     this.nameInput = this.form.querySelector('#shop-name') as HTMLInputElement;
     this.iconSelect = this.form.querySelector(
-      '#shop-icon',
+      '#shop-icon'
     ) as HTMLSelectElement;
     this.errorEl = this.form.querySelector(
-      '.form-error',
+      '.form-error'
     ) as HTMLParagraphElement;
 
     this.listEl = document.createElement('ul');
@@ -130,7 +130,7 @@ export class ShopListView {
       fragment.appendChild(
         shop.id === this.editingId
           ? this.buildEditRow(shop)
-          : this.buildRow(shop),
+          : this.buildRow(shop)
       );
     }
     this.listEl.replaceChildren(fragment);
@@ -165,7 +165,7 @@ export class ShopListView {
     if (!this.editingId) return;
     // editingId は crypto.randomUUID() 由来の UUID 形式のため、セレクタへの補間は安全
     const row = this.listEl.querySelector(
-      `.shop-row[data-id="${this.editingId}"]`,
+      `.shop-row[data-id="${this.editingId}"]`
     );
     const errorEl = row?.querySelector('.edit-error');
     if (errorEl) errorEl.textContent = message;

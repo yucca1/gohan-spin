@@ -13,7 +13,7 @@ export class ValidationError extends Error {
   constructor(
     message: string,
     public readonly field: string,
-    public readonly value: unknown,
+    public readonly value: unknown
   ) {
     super(message);
     this.name = 'ValidationError';
@@ -39,7 +39,7 @@ export class StorageError extends Error {
 export class NotFoundError extends Error {
   constructor(
     public readonly id: string,
-    message = 'お店が見つかりません',
+    message = 'お店が見つかりません'
   ) {
     super(message);
     this.name = 'NotFoundError';
