@@ -74,7 +74,7 @@ UI → Data                    (NG: Viewは直接localStorageを触らない)
 
 #### UIレイヤー（ShopListView / RouletteView）
 - **責務**: DOM描画、ユーザー操作の受付と入力バリデーションのUI反映、状態のCSSクラス制御、当選演出。
-- **許可される操作**: Service/Engineの呼び出し、canvas-confettiの呼び出し。
+- **許可される操作**: Service/Engineの呼び出し、canvas-confettiの呼び出し、効果音（注入された`RouletteSounds`）の呼び出し。
 - **禁止される操作**: localStorageへの直接アクセス、ビジネスロジックの実装。
 
 #### サービス / エンジンレイヤー（ShopService / RouletteEngine）
@@ -159,7 +159,7 @@ interface ShopStoreSchema {
 
 - **外部リンク(P1)**: `Shop.url?`追加＋`version`インクリメント。データレイヤーのマイグレーションで吸収。
 - **SVGアイコン(P1)**: `IconKey`抽象化により、`IconDef`の解決先を絵文字→SVGへ差し替えるだけで対応。
-- **効果音(P1)**: Start操作起点で`AudioContext`初期化し、iOS/Chromeの自動再生制限を回避。
+- **効果音(P1)**: ✅実装済み（2026-06-11）。`src/audio/SoundDirector.ts`がWeb Audio APIで全効果音を合成（音声ファイル・追加依存なし）。初期ミュートで、ON切替（ユーザー操作起点）時に`AudioContext`を遅延生成し、iOS/Chromeの自動再生制限を回避。
 - **設定のカスタマイズ**: 将来、減速時間やリーチ強度を設定として外出しできる構造を意識（Engineのパラメータ化）。
 
 ## テスト戦略

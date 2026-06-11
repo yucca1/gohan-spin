@@ -1,6 +1,10 @@
 import confetti from 'canvas-confetti';
 import type { Shop } from '../types/Shop';
-import type { WheelSegment, RouletteState } from '../types/Roulette';
+import type {
+  WheelSegment,
+  RouletteState,
+  RouletteSounds,
+} from '../types/Roulette';
 import { getIconDef } from '../icons/iconDefs';
 
 /**
@@ -44,13 +48,22 @@ export class RouletteView {
   private readonly winnerCardEl: HTMLDivElement;
   private readonly winnerIconEl: HTMLSpanElement;
   private readonly winnerNameEl: HTMLSpanElement;
+  /** 効果音トグル。sounds 未注入時は描画しないため null。 */
+  private soundBtn: HTMLButtonElement | null = null;
 
   /** 現在のルーレット状態。ボタン活性の計算に使う。 */
   private phase: RouletteState = 'idle';
   /** 対象店が1件以上あり Start 可能か。ボタン活性の計算に使う。 */
   private canStart = false;
 
-  constructor(private readonly root: HTMLElement) {
+  /**
+   * @param root 描画先のコンテナ要素
+   * @param sounds 効果音（省略可。注入時のみ🔊/🔇トグルを描画し、状態・角度を転送する）
+   */
+  constructor(
+    private readonly root: HTMLElement,
+    private readonly sounds?: RouletteSounds
+  ) {
     this.root.innerHTML = '';
 
     const section = document.createElement('section');
@@ -92,6 +105,21 @@ export class RouletteView {
     this.stopBtn.textContent = 'Stop';
 
     controls.append(this.startBtn, this.stopBtn);
+
+    // 効果音トグル（「効果音 ON/OFF」のテキスト表示）。sounds 注入時のみ描画し、
+    // 回転中もミュートできるようルーレット状態に関係なく常に押せる
+    if (this.sounds) {
+      const sounds = this.sounds;
+      this.soundBtn = document.createElement('button');
+      this.soundBtn.type = 'button';
+      this.soundBtn.className = 'sound-btn';
+      this.soundBtn.addEventListener('click', () => {
+        sounds.toggle();
+        this.updateSoundButton();
+      });
+      this.updateSoundButton();
+      controls.append(this.soundBtn);
+    }
 
     // 当選オーバーレイ（点滅・ズーム・アイコン+店名・もう一度）
     this.overlayEl = document.createElement('div');
@@ -154,6 +182,9 @@ export class RouletteView {
    * @param segments RouletteEngine.build が構築した区画
    */
   renderWheel(segments: WheelSegment[]): void {
+    // 描画スキップ環境（jsdom）でも音の境界判定は機能させるため、ctx 取得より先に通知する
+    this.sounds?.setSegmentCount(segments.length);
+
     const ctx = this.canvas.getContext('2d');
     if (!ctx) return;
 
@@ -194,6 +225,7 @@ export class RouletteView {
    */
   setAngle(angleDeg: number): void {
     this.canvas.style.transform = `rotate(${angleDeg}deg)`;
+    this.sounds?.handleAngle(angleDeg);
   }
 
   /**
@@ -203,6 +235,7 @@ export class RouletteView {
    */
   setPhase(state: RouletteState): void {
     this.phase = state;
+    this.sounds?.handlePhase(state);
     this.updateControls();
   }
 
@@ -240,6 +273,15 @@ export class RouletteView {
   hideWinner(): void {
     this.overlayEl.classList.add('is-hidden');
     this.winnerCardEl.classList.remove('is-blinking', 'is-zoomed');
+  }
+
+  /** 効果音トグルの表示（テキスト・色・aria-pressed）を現在の有効状態へ同期する。 */
+  private updateSoundButton(): void {
+    if (!this.soundBtn || !this.sounds) return;
+    const isOn = this.sounds.enabled;
+    this.soundBtn.textContent = isOn ? '効果音 ON' : '効果音 OFF';
+    this.soundBtn.classList.toggle('is-on', isOn);
+    this.soundBtn.setAttribute('aria-pressed', String(isOn));
   }
 
   /** 状態（phase × canStart）からボタン活性を一元的に再計算する。 */

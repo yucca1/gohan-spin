@@ -586,5 +586,5 @@ localStorage のキー設計:
 
 - **外部リンク(P1)**: `Shop.url?`を追加。`ShopStoreSchema.version`を上げてマイグレーション。一覧/当選表示にリンク導線。
 - **SVGアイコン(P1)**: `IconKey`はそのまま、`IconDef`の解決先を絵文字→SVGコンポーネントへ差し替えるだけで対応可能（キー抽象化の効果）。
-- **効果音(P1)**: Start操作起点で`AudioContext`を初期化（iOS/Chromeの自動再生制限を回避）。回転中カチカチ・停止時ドラムロール。
+- **効果音(P1)**: ✅実装済み（2026-06-11）。`src/audio/SoundDirector.ts`がWeb Audio APIで全効果音を合成（音声ファイル不使用）。回転中〜減速中は区画通過に同期したカチカチ音（減速につれ間隔が伸びる）、当選確定でファンファーレ。ミュートトグルあり（「効果音 ON/OFF」のテキスト表示・初期OFF・保存なし）。ON切替（ユーザー操作起点）で`AudioContext`を遅延生成し自動再生制限を回避。詳細はPRD「効果音」と`.steering/20260611-add-sound-effects/`を参照。
 - **他ブラウザ(P2)**: CSS/JSのベンダー差異を検証。iOS WebKitはMVP時点で対象に含むため、ここでの主対象はデスクトップSafari/Firefox/Edge。

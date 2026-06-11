@@ -19,6 +19,7 @@ gohan-spin/
 │   ├── views/              # UIレイヤー（DOM描画・操作受付・演出）
 │   ├── services/           # サービスレイヤー（お店CRUD・対象管理・バリデーション）
 │   ├── engine/             # ルーレットの計算ロジック（回転・減速・当選判定）
+│   ├── audio/              # 効果音（Web Audio APIによる合成・ミュート管理）
 │   ├── repositories/       # データレイヤー（localStorage I/O）
 │   └── styles/             # CSS（レスポンシブ・レイアウト・演出）
 ├── tests/                  # テストコード（src併置と併用可。下記参照）※現状 空
@@ -132,6 +133,19 @@ gohan-spin/
 - 依存可能: types、ブラウザ`requestAnimationFrame` / `performance` API。
 - 依存禁止: views / repositories / services（永続化やDOMに非依存の純粋ロジック）。
 
+#### src/audio/ (効果音)
+
+**役割**: ルーレット効果音（カチカチ・ファンファーレ）の Web Audio API による合成・再生と、ミュート状態の管理。音声ファイルは使わない。
+
+**配置ファイル**:
+- `SoundDirector.ts`: `RouletteSounds`インターフェース（`types/Roulette.ts`）の実装。`toggle()` / `setSegmentCount()` / `handleAngle()` / `handlePhase()`。境界判定用の純粋関数`segmentIndexAt()`もここに置く。
+
+**命名規則**: PascalCase + `Director`接尾辞（演出の指揮役）。
+
+**依存関係**:
+- 依存可能: types、ブラウザ`AudioContext`（Web Audio API）/ `performance` API。
+- 依存禁止: views / services / repositories / engine（音はViewから注入されて受動的に動く。`AudioContext`がない環境ではno-op）。
+
 #### src/views/ (UIレイヤー)
 
 **役割**: DOM描画、操作受付、入力バリデーションのUI反映、状態のCSSクラス制御、当選演出。
@@ -143,7 +157,7 @@ gohan-spin/
 **命名規則**: PascalCase + `View`接尾辞。
 
 **依存関係**:
-- 依存可能: types、icons、services、engine、canvas-confetti。
+- 依存可能: types、icons、services、engine、audio（`RouletteSounds`の注入を受ける）、canvas-confetti。
 - 依存禁止: repositories（localStorageを直接触らない。必ずService経由）。
 
 #### src/styles/
@@ -173,6 +187,8 @@ tests/unit/
 ├── engine/
 │   ├── RouletteEngine.test.ts
 │   └── easing.test.ts
+├── audio/
+│   └── SoundDirector.test.ts
 └── repositories/
     └── ShopRepository.test.ts
 ```
@@ -272,7 +288,7 @@ repositories (Data)
 ### 機能の追加（Post-MVP対応）
 - **外部リンク(P1)**: `types/Shop.ts`に`url?`追加、`repositories`でスキーマ`version`マイグレーション、`views`に導線追加。レイヤーをまたぐが各責務内で完結。
 - **SVGアイコン(P1)**: `src/icons/`の解決先のみ変更（`IconKey`抽象化の効果。他レイヤーは無改修）。
-- **効果音(P1)**: `src/engine/`または新設`src/audio/`に`SoundPlayer`を追加し、`RouletteView`から呼び出す。
+- **効果音(P1)**: ✅実装済み（2026-06-11）。新設`src/audio/SoundDirector.ts`が`RouletteSounds`（`types/Roulette.ts`）を実装し、`main.ts`が`RouletteView`へ注入。Viewは`renderWheel`/`setAngle`/`setPhase`から転送するのみ。
 
 ### ファイルサイズの管理
 - 1ファイル300行以下を推奨。`ShopService`や`RouletteView`が膨らんだら責務分割（例: `RouletteView`から演出を`WinnerEffect.ts`へ抽出）。
