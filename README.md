@@ -4,6 +4,12 @@
 
 「今日どこ行く？」という迷いの時間を、リーチ演出・点滅ズーム・紙吹雪・効果音で「家族みんなでドキドキする時間」に変えます。
 
+## 🌐 公開URL
+
+**https://yucca1.github.io/gohan-spin/**
+
+mainブランチへのpushをトリガーに、GitHub Actionsが自動でビルド・デプロイします（[.github/workflows/deploy.yml](.github/workflows/deploy.yml)）。
+
 ## ✨ 特徴
 
 - **インストール不要**: ブラウザでURLを開くだけ。アカウント登録もサーバーも不要

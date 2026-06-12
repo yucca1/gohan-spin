@@ -1,0 +1,63 @@
+# mainブランチへのpushをトリガーに、品質チェック→ビルド→GitHub Pagesデプロイを自動実行する
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+  # Actionsタブから手動実行もできるようにする
+  workflow_dispatch:
+
+# GITHUB_TOKENに最小権限のみ付与（Pagesデプロイに必要な3つ）
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 連続pushでデプロイが競合しないよう、古い実行をキャンセルして最新のみ反映する
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          # devcontainerの開発環境（Node.js v24系）と揃える
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
