@@ -26,7 +26,7 @@
 
 > **UIフレームワークを使わない理由**: 規模が小さく（単一画面）、学習目的であるため。React等の抽象を挟むより、素のDOM操作で「何が起きているか」を理解しやすい。状態管理が複雑化したら将来導入を再検討する（拡張余地として記録）。
 
-> ⚠️ **`vite.config.ts`は未作成**。現状はViteのデフォルト設定で動作するが、GitHub Pagesのプロジェクトページ（`https://<user>.github.io/gohan-spin/`）へ配信する場合は`vite.config.ts`を新規作成し`base: '/gohan-spin/'`を設定する必要がある（未設定だとアセットのパスがずれて読み込めない）。実装フェーズの配信準備時に対応する。
+> ✅ **`vite.config.ts`作成済み（2026-06-12）**。GitHub Pagesのプロジェクトページ（`https://yucca1.github.io/gohan-spin/`）へ配信するため`base: '/gohan-spin/'`を設定。配信は`.github/workflows/deploy.yml`によるGitHub Actions方式で、mainへのpushをトリガーに品質チェック（lint / typecheck / test）→ビルド→デプロイを自動実行する（チェック失敗時はデプロイされない）。
 
 ### 開発ツール
 

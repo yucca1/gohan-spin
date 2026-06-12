@@ -6,12 +6,12 @@
 
 ## プロジェクト構造
 
-> **注意**: 以下は**目標とするディレクトリ構造**。お店の登録・一覧管理・ルーレット機能の実装に伴い、`src/` 配下の主要サブディレクトリ（types / icons / views / services / engine / repositories / styles）と `tests/` は作成済み。コメントに「※未作成」とある項目はまだ存在しない。
+> **注意**: 以下のディレクトリ構造は**実態と一致**している（2026-06-12時点。GitHub Pages公開対応で `vite.config.ts` / `.github/` を追加し、全項目が作成済みになった）。
 
 ```
 gohan-spin/
-├── index.html              # SPAのエントリHTML（Viteのエントリポイント）※未作成
-├── src/                    # ソースコード（現状 .gitkeep のみ）
+├── index.html              # SPAのエントリHTML（Viteのエントリポイント）
+├── src/                    # ソースコード
 │   ├── main.ts             # アプリ初期化・各レイヤーの組み立て（依存注入）
 │   ├── types/              # 型定義（Shop / IconKey / スキーマ等）
 │   ├── errors.ts           # カスタムエラークラス（ValidationError / StorageError / NotFoundError）
@@ -22,22 +22,25 @@ gohan-spin/
 │   ├── audio/              # 効果音（Web Audio APIによる合成・ミュート管理）
 │   ├── repositories/       # データレイヤー（localStorage I/O）
 │   └── styles/             # CSS（レスポンシブ・レイアウト・演出）
-├── tests/                  # テストコード（src併置と併用可。下記参照）※現状 空
+├── tests/                  # テストコード（src併置と併用可。下記参照）
 │   ├── unit/               # ユニットテスト
 │   └── integration/        # 統合テスト
 ├── docs/                   # プロジェクトドキュメント（6つの永続ドキュメント）
 │   └── ideas/              # 下書き・アイデアメモ
 ├── .steering/              # 作業単位のステアリングファイル（コミット対象。下記参照）
 ├── .claude/                # Claude Code設定（skills/hooks等）
+├── .github/                # GitHub Actions設定
+│   └── workflows/
+│       └── deploy.yml      # GitHub Pages自動デプロイ（品質チェック→ビルド→デプロイ）
 ├── dist/                   # ビルド成果物（gitignore対象。GitHub Pagesへ配信）※ビルド時生成
 ├── package.json
 ├── tsconfig.json
+├── vite.config.ts          # GitHub Pages配信用の base: '/gohan-spin/' を設定
 ├── vitest.config.ts
 ├── eslint.config.js
 ├── .prettierrc / .prettierignore
 ├── .gitignore
-└── README.md               # ※未作成
-# vite.config.ts は未作成（GitHub Pages配信時に新規追加し base: '/gohan-spin/' を設定）
+└── README.md
 ```
 
 > **テスト配置の方針**: `vitest.config.ts`の`include`は `src/**/*.{test,spec}.ts` と `tests/**/*.{test,spec}.ts` の両方を対象にしている。本プロジェクトでは原則 **`tests/` に集約**（本番コードとテストを分離しビルドから除外しやすい）。ただし小さなロジックのテストはsrc併置も許容する（設定上は両対応）。チーム内で揺れないよう、迷ったら`tests/`に置く。

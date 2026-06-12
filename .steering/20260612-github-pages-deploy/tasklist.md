@@ -53,31 +53,31 @@
 
 ## フェーズ3: 品質チェックとコミット
 
-- [ ] すべてのテストが通ることを確認
-  - [ ] `npm test`
-- [ ] リントエラーがないことを確認
-  - [ ] `npm run lint`
-- [ ] 型エラーがないことを確認
-  - [ ] `npm run typecheck`
-- [ ] ビルドが成功することを確認
-  - [ ] `npm run build`
-- [ ] README.md に公開URLを追記
-- [ ] コミット前に機密ファイルが含まれていないことを確認（git log / diff の確認）
-- [ ] 変更をコミット
+- [x] すべてのテストが通ることを確認
+  - [x] `npm test` → 152件パス
+- [x] リントエラーがないことを確認
+  - [x] `npm run lint`
+- [x] 型エラーがないことを確認
+  - [x] `npm run typecheck`
+- [x] ビルドが成功することを確認
+  - [x] `npm run build`
+- [x] README.md に公開URLを追記
+- [x] コミット前に機密ファイルが含まれていないことを確認（git log / diff の確認）→ 全履歴に機密パターンなし
+- [x] 変更をコミット
 
 ## フェーズ4: GitHubリポジトリ作成と公開
 
-- [ ] gh CLI の認証状態を確認（`gh auth status`）
-- [ ] パブリックリポジトリ `gohan-spin` を作成し main を push
-- [ ] Settings → Pages で Source を「GitHub Actions」に設定（ユッカさんへ手順を案内し、設定完了を確認）
-- [ ] ワークフローの実行結果を確認（`gh run watch` / 失敗時はログを見て修正・再実行）
+- [x] gh CLI の認証状態を確認（`gh auth status`）※サンドボックス制約のためユッカさんのターミナルで実行
+- [x] パブリックリポジトリ `gohan-spin` を作成し main を push（`gh repo create gohan-spin --public --source=. --push`）
+- [x] Settings → Pages で Source を「GitHub Actions」に設定（ユッカさんへ手順を案内し、設定完了を確認）
+- [x] ワークフローの実行結果を確認（初回pushの実行はPages設定前のため「Setup Pages」で失敗→想定内。Pages設定後に `gh workflow run deploy.yml` で再実行し成功。品質チェック4点もCI上で全パス）
 
 ## フェーズ5: 公開確認とドキュメント更新
 
-- [ ] 公開URL（https://<ユーザー名>.github.io/gohan-spin/）でアプリが表示されることを確認
+- [x] 公開URL（https://yucca1.github.io/gohan-spin/）でアプリが表示されることを確認（タイトル・ヘッダーの配信をHTTP経由で確認）
 - [ ] 公開URL上で主要フローの動作確認（お店登録→一覧→対象切替→Start→Stop→当選演出）をユッカさんへ依頼
-- [ ] `docs/architecture.md` の「vite.config.ts 未作成」注記を実態に合わせて更新
-- [ ] `docs/repository-structure.md` の構造図を実態（vite.config.ts / .github/ 追加）に合わせて更新
+- [x] `docs/architecture.md` の「vite.config.ts 未作成」注記を実態に合わせて更新
+- [x] `docs/repository-structure.md` の構造図を実態（vite.config.ts / .github/ 追加）に合わせて更新
 - [ ] ドキュメント更新をコミット
 - [ ] 実装後の振り返り（このファイルの下部に記録）
 
