@@ -18,7 +18,7 @@ function makeShop(name: string): Shop {
   return {
     id: crypto.randomUUID(),
     name,
-    iconKey: 'ramen',
+    iconKey: 'noodle',
     enabled: true,
     createdAt: now,
     updatedAt: now,

@@ -8,7 +8,7 @@ import type { IconDef, IconKey } from '../types/IconKey';
  */
 export const ICON_DEFS: readonly IconDef[] = [
   { key: 'burger', emoji: '🍔', label: 'ハンバーガー', order: 1 },
-  { key: 'ramen', emoji: '🍜', label: 'ラーメン', order: 2 },
+  { key: 'noodle', emoji: '🍜', label: '麺類', order: 2 },
   { key: 'pizza', emoji: '🍕', label: 'ピザ', order: 3 },
   { key: 'pasta', emoji: '🍝', label: 'パスタ', order: 4 },
   { key: 'sushi', emoji: '🍣', label: '寿司', order: 5 },

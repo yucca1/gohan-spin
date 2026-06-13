@@ -7,7 +7,7 @@
  */
 export type IconKey =
   | 'burger'
-  | 'ramen'
+  | 'noodle'
   | 'pizza'
   | 'pasta'
   | 'sushi'

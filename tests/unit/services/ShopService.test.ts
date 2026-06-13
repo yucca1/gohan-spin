@@ -28,7 +28,7 @@ describe('ShopService', () => {
     });
 
     it('作成したお店が永続化される', () => {
-      service.create({ name: 'ラーメンB', iconKey: 'ramen' });
+      service.create({ name: 'ラーメンB', iconKey: 'noodle' });
       expect(repo.loadAll()).toHaveLength(1);
     });
 
@@ -106,7 +106,7 @@ describe('ShopService', () => {
     it('カテゴリ順（IconDef.order 昇順）でソートして返す', () => {
       service.create({ name: 'カフェ', iconKey: 'cafe' }); // order 6
       service.create({ name: 'バーガー', iconKey: 'burger' }); // order 1
-      service.create({ name: 'ラーメン', iconKey: 'ramen' }); // order 2
+      service.create({ name: 'ラーメン', iconKey: 'noodle' }); // order 2
 
       const names = service.list().map((s) => s.name);
       expect(names).toEqual(['バーガー', 'ラーメン', 'カフェ']);
@@ -144,7 +144,7 @@ describe('ShopService', () => {
     it('enabled=true のお店のみをカテゴリ順で返す', () => {
       const cafe = service.create({ name: 'カフェ', iconKey: 'cafe' }); // order 6
       service.create({ name: 'バーガー', iconKey: 'burger' }); // order 1
-      const ramen = service.create({ name: 'ラーメン', iconKey: 'ramen' }); // order 2
+      const noodle = service.create({ name: 'ラーメン', iconKey: 'noodle' }); // order 2
       // バーガーだけ対象から外す
       service.toggleEnabled(
         service.list().find((s) => s.name === 'バーガー')!.id,
@@ -153,8 +153,8 @@ describe('ShopService', () => {
 
       const names = service.listEnabled().map((s) => s.name);
       expect(names).toEqual(['ラーメン', 'カフェ']);
-      // 参照を握りつぶしていないこと（ramen/cafe は enabled のまま）
-      expect(ramen.enabled).toBe(true);
+      // 参照を握りつぶしていないこと（noodle/cafe は enabled のまま）
+      expect(noodle.enabled).toBe(true);
       expect(cafe.enabled).toBe(true);
     });
 
@@ -176,8 +176,8 @@ describe('ShopService', () => {
 
     it('アイコンのみを更新できる', () => {
       const created = service.create({ name: '店', iconKey: 'burger' });
-      const updated = service.update(created.id, { iconKey: 'ramen' });
-      expect(updated.iconKey).toBe('ramen');
+      const updated = service.update(created.id, { iconKey: 'noodle' });
+      expect(updated.iconKey).toBe('noodle');
       expect(updated.name).toBe('店');
     });
 
@@ -289,7 +289,7 @@ describe('ShopService', () => {
   describe('remove', () => {
     it('お店を削除すると件数が減る', () => {
       const a = service.create({ name: 'A', iconKey: 'burger' });
-      service.create({ name: 'B', iconKey: 'ramen' });
+      service.create({ name: 'B', iconKey: 'noodle' });
       service.remove(a.id);
       const names = service.list().map((s) => s.name);
       expect(names).toEqual(['B']);
