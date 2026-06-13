@@ -247,6 +247,34 @@ describe('SoundDirector（AudioContext スタブによる再生経路）', () =>
     expect(ctx().oscillators).toHaveLength(2);
   });
 
+  it('ONへの切り替えで iOS の audio session を playback に設定する（マナーモード対策）', () => {
+    // Given: navigator.audioSession（WebKit独自・iOS 17+）が存在する環境
+    const audioSession = { type: 'ambient' };
+    Object.defineProperty(navigator, 'audioSession', {
+      value: audioSession,
+      configurable: true,
+    });
+
+    try {
+      // When: 効果音をONにする
+      new SoundDirector().toggle();
+
+      // Then: メディアチャンネル扱いになり、マナーモード・着信音量の影響を受けない
+      expect(audioSession.type).toBe('playback');
+    } finally {
+      delete (navigator as Navigator & { audioSession?: unknown })
+        .audioSession;
+    }
+  });
+
+  it('navigator.audioSession が無い環境では ON 切替しても例外を投げない', () => {
+    // jsdom には audioSession が存在しない（非対応環境では no-op の確認）
+    expect('audioSession' in navigator).toBe(false);
+    const director = new SoundDirector();
+    expect(() => director.toggle()).not.toThrow();
+    expect(director.enabled).toBe(true);
+  });
+
   it('同じ区画内の角度更新ではカチカチ音は鳴らない', () => {
     const director = new SoundDirector();
     director.toggle();

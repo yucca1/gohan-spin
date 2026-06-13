@@ -13,6 +13,30 @@ const FANFARE_NOTES_HZ = [523.25, 659.25, 783.99, 1046.5];
 const FANFARE_NOTE_GAP_SEC = 0.12;
 
 /**
+ * WebKit 独自の Audio Session API（iOS 17+）。lib.dom.d.ts に型が無いため
+ * グローバル型を汚染しないローカル型でナローイングする。
+ */
+interface AudioSessionLike {
+  type: string;
+}
+
+/**
+ * iOS（WebKit）の audio session を 'playback' に切り替える。
+ *
+ * iOS では Web Audio API がデフォルトで着信音チャンネル（type: 'ambient'）で
+ * 再生されるため、マナーモード中は無音になり、音量も着信音量に従ってしまう
+ * （WebKit Bug 237322）。'playback' にするとメディアチャンネル扱いになり、
+ * マナーモードの影響を受けず通常の音量ボタンで調整できる。
+ * 非対応環境（PC各ブラウザ・iOS 16以前・jsdom）では何もしない。
+ */
+function applyPlaybackAudioSession(): void {
+  const audioSession = (
+    navigator as Navigator & { audioSession?: AudioSessionLike }
+  ).audioSession;
+  if (audioSession) audioSession.type = 'playback';
+}
+
+/**
  * 回転角度が指すホイール区画のインデックスを返す（カチカチ音の境界通過判定用）。
  *
  * 減速中の角度は 360 を超えて増え続けるため正規化せずに floor する。
@@ -142,6 +166,7 @@ export class SoundDirector implements RouletteSounds {
     }
     if (typeof AudioContext === 'undefined') return null;
     try {
+      applyPlaybackAudioSession();
       this.ctx = new AudioContext();
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = MASTER_VOLUME;
