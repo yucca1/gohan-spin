@@ -10,9 +10,11 @@ export const ICON_DEFS: readonly IconDef[] = [
   { key: 'burger', emoji: '🍔', label: 'ハンバーガー', order: 1 },
   { key: 'ramen', emoji: '🍜', label: 'ラーメン', order: 2 },
   { key: 'pizza', emoji: '🍕', label: 'ピザ', order: 3 },
-  { key: 'sushi', emoji: '🍣', label: '寿司', order: 4 },
-  { key: 'curry', emoji: '🍛', label: 'カレー', order: 5 },
-  { key: 'cafe', emoji: '☕', label: 'カフェ', order: 6 },
+  { key: 'pasta', emoji: '🍝', label: 'パスタ', order: 4 },
+  { key: 'sushi', emoji: '🍣', label: '寿司', order: 5 },
+  { key: 'curry', emoji: '🍛', label: 'カレー', order: 6 },
+  { key: 'gohanmono', emoji: '🍚', label: 'ご飯もの', order: 7 },
+  { key: 'cafe', emoji: '☕', label: 'カフェ', order: 8 },
   { key: 'other', emoji: '🍽️', label: 'その他', order: 99 },
 ];
 

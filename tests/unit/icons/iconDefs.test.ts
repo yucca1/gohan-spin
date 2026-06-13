@@ -34,12 +34,28 @@ describe('iconDefs', () => {
       const def = getIconDef('unknown');
       expect(def.key).toBe('other');
     });
+
+    it('ご飯もの（gohanmono）はご飯アイコンを返す', () => {
+      const def = getIconDef('gohanmono');
+      expect(def.key).toBe('gohanmono');
+      expect(def.emoji).toBe('🍚');
+      expect(def.label).toBe('ご飯もの');
+    });
+
+    it('パスタ（pasta）はパスタアイコンを返す', () => {
+      const def = getIconDef('pasta');
+      expect(def.key).toBe('pasta');
+      expect(def.emoji).toBe('🍝');
+      expect(def.label).toBe('パスタ');
+    });
   });
 
   describe('isIconKey', () => {
     it('許可値には true を返す', () => {
       expect(isIconKey('burger')).toBe(true);
       expect(isIconKey('other')).toBe(true);
+      expect(isIconKey('gohanmono')).toBe(true);
+      expect(isIconKey('pasta')).toBe(true);
     });
 
     it('許可値以外には false を返す', () => {

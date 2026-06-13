@@ -9,8 +9,10 @@ export type IconKey =
   | 'burger'
   | 'ramen'
   | 'pizza'
+  | 'pasta'
   | 'sushi'
   | 'curry'
+  | 'gohanmono'
   | 'cafe'
   | 'other';
 
