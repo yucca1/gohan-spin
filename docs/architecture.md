@@ -159,7 +159,7 @@ interface ShopStoreSchema {
 
 - **外部リンク(P1)**: `Shop.url?`追加＋`version`インクリメント。データレイヤーのマイグレーションで吸収。
 - **SVGアイコン(P1)**: `IconKey`抽象化により、`IconDef`の解決先を絵文字→SVGへ差し替えるだけで対応。
-- **効果音(P1)**: ✅実装済み（2026-06-11）。`src/audio/SoundDirector.ts`がWeb Audio APIで全効果音を合成（音声ファイル・追加依存なし）。初期ミュートで、ON切替（ユーザー操作起点）時に`AudioContext`を遅延生成し、iOS/Chromeの自動再生制限を回避。
+- **効果音(P1)**: ✅実装済み（2026-06-11）。`src/audio/SoundDirector.ts`がWeb Audio APIで全効果音を合成（音声ファイル・追加依存なし）。初期ミュートで、ON切替（ユーザー操作起点）時に`AudioContext`を遅延生成し、iOS/Chromeの自動再生制限を回避。iOS 17+では`navigator.audioSession.type = 'playback'`を設定し、Web Audioをメディアチャンネル扱いにする（マナーモードで無音にならず、メディア音量で調整可能。非対応環境ではno-op）。
 - **設定のカスタマイズ**: 将来、減速時間やリーチ強度を設定として外出しできる構造を意識（Engineのパラメータ化）。
 
 ## テスト戦略
