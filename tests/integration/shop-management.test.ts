@@ -17,7 +17,7 @@ describe('shop management (ShopService + ShopRepository)', () => {
     const created = writeService.create({ name: '旧店名', iconKey: 'burger' });
     const updated = writeService.update(created.id, {
       name: '新店名',
-      iconKey: 'ramen',
+      iconKey: 'noodle',
     });
 
     // When: アプリ再起動を模して読み直す
@@ -28,7 +28,7 @@ describe('shop management (ShopService + ShopRepository)', () => {
     expect(loaded).toHaveLength(1);
     expect(loaded[0]).toEqual(updated);
     expect(loaded[0].name).toBe('新店名');
-    expect(loaded[0].iconKey).toBe('ramen');
+    expect(loaded[0].iconKey).toBe('noodle');
     expect(loaded[0].createdAt).toBe(created.createdAt); // createdAt は不変
   });
 
@@ -46,7 +46,7 @@ describe('shop management (ShopService + ShopRepository)', () => {
   it('削除 → 再読込で復活しない', () => {
     const writeService = new ShopService(new ShopRepository());
     const a = writeService.create({ name: 'A', iconKey: 'burger' });
-    writeService.create({ name: 'B', iconKey: 'ramen' });
+    writeService.create({ name: 'B', iconKey: 'noodle' });
     writeService.remove(a.id);
 
     const readService = new ShopService(new ShopRepository());

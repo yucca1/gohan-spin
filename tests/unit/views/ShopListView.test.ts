@@ -16,7 +16,7 @@ function makeShop(overrides: Partial<Shop> = {}): Shop {
   return {
     id: `id-${idCounter}`,
     name: 'テスト店',
-    iconKey: 'ramen',
+    iconKey: 'noodle',
     enabled: true,
     createdAt: now,
     updatedAt: now,
@@ -55,13 +55,13 @@ describe('ShopListView', () => {
       const nameInput = root.querySelector('#shop-name') as HTMLInputElement;
       const iconSelect = root.querySelector('#shop-icon') as HTMLSelectElement;
       nameInput.value = 'ラーメンA';
-      iconSelect.value = 'ramen';
+      iconSelect.value = 'noodle';
       // When
       root.querySelector('form')!.dispatchEvent(new Event('submit'));
       // Then
       expect(handlers.onCreate).toHaveBeenCalledWith({
         name: 'ラーメンA',
-        iconKey: 'ramen',
+        iconKey: 'noodle',
       });
     });
 
@@ -114,7 +114,7 @@ describe('ShopListView', () => {
   describe('保存（click）', () => {
     it('編集行で値を変更して保存すると onEdit が新しい値で呼ばれる', () => {
       // Given
-      view.render([makeShop({ id: 's1', name: '旧名', iconKey: 'ramen' })]);
+      view.render([makeShop({ id: 's1', name: '旧名', iconKey: 'noodle' })]);
       (root.querySelector('.edit-btn') as HTMLButtonElement).click();
       const nameInput = root.querySelector('.edit-name') as HTMLInputElement;
       const iconSelect = root.querySelector('.edit-icon') as HTMLSelectElement;

@@ -83,7 +83,7 @@
 
 ### アイコンキー (IconKey)
 
-**定義**: お店のアイコンを表す内部のキー文字列（例: `'burger'`, `'ramen'`）。表示用の絵文字やカテゴリ名とは分離されている。
+**定義**: お店のアイコンを表す内部のキー文字列（例: `'burger'`, `'noodle'`）。表示用の絵文字やカテゴリ名とは分離されている。
 
 **説明**: MVPでは`IconKey`を絵文字（🍔など）にマップして表示するが、キーで抽象化することで、将来は絵文字→SVGアイコンセットへ**解決先を差し替えるだけ**で移行できる。カテゴリ順ソートも`IconKey`に紐づく`order`で実現する。
 
@@ -91,7 +91,7 @@
 
 **使用例**:
 ```typescript
-type IconKey = 'burger' | 'ramen' | 'pizza' | 'sushi' | 'curry' | 'cafe' | 'other';
+type IconKey = 'burger' | 'noodle' | 'pizza' | 'sushi' | 'curry' | 'cafe' | 'other';
 ```
 
 **データモデル**: `src/types/IconKey.ts` / 解決マップ: `src/icons/iconDefs.ts`
@@ -100,7 +100,7 @@ type IconKey = 'burger' | 'ramen' | 'pizza' | 'sushi' | 'curry' | 'cafe' | 'othe
 
 ### カテゴリ (Category)
 
-**定義**: お店の種類（ハンバーガー／ラーメン等）。MVPでは`IconKey`と1対1に対応し、一覧のソート順を決める。
+**定義**: お店の種類（ハンバーガー／麺類等）。MVPでは`IconKey`と1対1に対応し、一覧のソート順を決める。
 
 **説明**: 独立したエンティティではなく、`IconKey`に紐づく表示ラベルとソート順（`IconDef.order`）として表現する。一覧は「探しやすさ」のためカテゴリ順で表示される。最終ラインナップは設計実装フェーズで確定する。
 

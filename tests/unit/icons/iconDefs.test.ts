@@ -24,8 +24,8 @@ describe('iconDefs', () => {
 
   describe('getIconDef', () => {
     it('既知のキーで対応する定義を返す', () => {
-      const def = getIconDef('ramen');
-      expect(def.key).toBe('ramen');
+      const def = getIconDef('noodle');
+      expect(def.key).toBe('noodle');
       expect(def.emoji).toBe('🍜');
     });
 
